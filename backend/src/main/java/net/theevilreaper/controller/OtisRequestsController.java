@@ -35,7 +35,7 @@ public class OtisRequestsController {
     }
 
     @Validated
-    @Get("/{owner}")
+    @Get("/byId/{owner}")
     public HttpResponse<OtisPlayerDTO> getById(@Valid UUID owner) {
         OtisPlayer entity = this.repository.findById(owner).orElse(null);
         if (entity == null) {
@@ -45,7 +45,7 @@ public class OtisRequestsController {
     }
 
     @Validated
-    @Get("/{owner}")
+    @Get("/byName/{owner}")
     public HttpResponse<OtisPlayerDTO> getByString(@Valid String owner) {
         OtisPlayer entity = this.repository.findById(UUID.fromString(owner)).orElse(null);
         if (entity == null) {
