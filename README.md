@@ -1,30 +1,48 @@
-## Micronaut 4.7.3 Documentation
+# Otis
 
-- [User Guide](https://docs.micronaut.io/4.7.3/guide/index.html)
-- [API Reference](https://docs.micronaut.io/4.7.3/api/index.html)
-- [Configuration Reference](https://docs.micronaut.io/4.7.3/guide/configurationreference.html)
-- [Micronaut Guides](https://guides.micronaut.io/index.html)
+The `Otis` project is a REST API service designed to store various data about players in a database.  
+It is built on the Micronaut framework, which facilitates the development of such services.
+
+This approach minimizes the need for requests to third-party services and enables internal services to work with players
+who are offline.
+
+> **⚠ CAUTION**  
+> If a player is not registered on the server, a call to a third-party service is necessary.  
+> Currently, this project does not provide functionality to handle such cases.
 
 ---
 
-- [Micronaut Gradle Plugin documentation](https://micronaut-projects.github.io/micronaut-gradle-plugin/latest/)
-- [GraalVM Gradle Plugin documentation](https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html)
-- [Shadow Gradle Plugin](https://plugins.gradle.org/plugin/com.github.johnrengelman.shadow)
+## Interaction
 
-## Feature jdbc-hikari documentation
+Plugins, extensions, or services from our ecosystem communicate with the `Otis` service via web requests.  
+While this may seem unconventional in a plugin, REST API calls offer greater flexibility because they eliminate the need
+for an active connection to a database server.
 
-- [Micronaut Hikari JDBC Connection Pool documentation](https://micronaut-projects.github.io/micronaut-sql/latest/guide/index.html#jdbc)
+It is the responsibility of the use case to handle scenarios where the service is unreachable.
 
-## Feature serialization-jackson documentation
+### Available Controllers
 
-- [Micronaut Serialization Jackson Core documentation](https://micronaut-projects.github.io/micronaut-serialization/latest/guide/)
+#### `/otis` Controller
 
-## Feature micronaut-aot documentation
+This controller handles operations related to player profiles:
 
-- [Micronaut AOT documentation](https://micronaut-projects.github.io/micronaut-aot/latest/guide/)
+| Endpoint          | Method | Parameters      |  
+|-------------------|--------|-----------------|  
+| `/`               | POST   | `body: Profile` |  
+| `/byId/{owner}`   | GET    | `id: UUID`      |  
+| `/byName/{name}`  | GET    | `name: String`  |  
+| `/delete/{owner}` | DELETE | `id: UUID`      |  
+| `/all`            | GET    | `<none>`        |  
 
-## Feature hibernate-jpa documentation
+---
 
-- [Micronaut Hibernate JPA documentation](https://micronaut-projects.github.io/micronaut-sql/latest/guide/index.html#hibernate)
+#### `/search` Controller
 
+This controller is used to check if a given player or UUID has a profile:
 
+| Endpoint         | Method | Parameters     |  
+|------------------|--------|----------------|  
+| `/byId/{id}`     | GET    | `id: UUID`     |  
+| `/byName/{name}` | GET    | `name: String` |  
+
+---
