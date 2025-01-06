@@ -5,6 +5,22 @@ micronaut:
   application:
     name: Otis API
 
+# Datasource
+datasources:
+  default:
+    url: ${JDBC_URL:`jdbc:mariadb://127.0.0.1:3336/otis`}
+    password: ${JDBC_PASSWORD:`otis`}
+    username: ${JDBC_USER:`root`}
+    driver-class-name: ${JDBC_DRIVER:`org.mariadb.jdbc.Driver`}
+# JPA
+jpa:
+  default:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+        show_sql: false
+
 # OpenAPI
 router:
   static-resources:
