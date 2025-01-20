@@ -1,4 +1,4 @@
-package net.theevilreaper.controller;
+package net.theevilreaper.otis.controller;
 
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
@@ -9,9 +9,9 @@ import io.micronaut.http.annotation.Post;
 import io.micronaut.validation.Validated;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import net.theevilreaper.database.entity.OtisPlayer;
-import net.theevilreaper.database.repository.OtisPlayerRepository;
-import net.theevilreaper.dto.OtisPlayerDTO;
+import net.theevilreaper.otis.database.entity.OtisPlayer;
+import net.theevilreaper.otis.database.repository.OtisPlayerRepository;
+import net.theevilreaper.otis.dto.OtisPlayerDTO;
 
 import java.util.List;
 import java.util.UUID;
