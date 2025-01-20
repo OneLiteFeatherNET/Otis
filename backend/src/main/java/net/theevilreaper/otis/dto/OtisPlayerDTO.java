@@ -1,10 +1,11 @@
-package net.theevilreaper.dto;
+package net.theevilreaper.otis.dto;
 
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ public record OtisPlayerDTO(
         String playerName,
         long firstJoin,
         long lastJoin,
-        Map<String, Object> profileTextures
+        Map<String, Object> profileTextures,
+        Locale locale
 ) {
 }
