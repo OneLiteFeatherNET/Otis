@@ -41,6 +41,7 @@ dependencies {
 
     testImplementation(mn.micronaut.test.rest.assured)
     testImplementation(mn.junit.jupiter.api)
+    testImplementation(mn.junit.jupiter.params)
     testRuntimeOnly(mn.junit.jupiter.engine)
 }
 

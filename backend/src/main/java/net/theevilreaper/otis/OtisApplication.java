@@ -1,4 +1,4 @@
-package net.theevilreaper;
+package net.theevilreaper.otis;
 
 import io.micronaut.context.annotation.ConfigurationProperties;
 import io.micronaut.runtime.Micronaut;
