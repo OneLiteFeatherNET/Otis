@@ -1,4 +1,4 @@
-package net.theevilreaper.otis.database.converter;
+package net.onelitefeather.otis.database.converter;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;

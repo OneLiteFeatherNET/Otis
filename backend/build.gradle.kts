@@ -4,7 +4,7 @@ plugins {
 }
 
 version = "0.1"
-group = "net.theevilreaper"
+group = "net.onelitefeather"
 
 repositories {
     mavenCentral()

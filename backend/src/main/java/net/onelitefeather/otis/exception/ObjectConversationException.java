@@ -1,4 +1,4 @@
-package net.theevilreaper.otis.exception;
+package net.onelitefeather.otis.exception;
 
 public class ObjectConversationException extends RuntimeException {
 
