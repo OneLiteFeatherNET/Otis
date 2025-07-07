@@ -17,6 +17,9 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             version("micronaut", "4.5.4")
+            version("annotations", "26.0.1")
+
+            library("jetbrains.annotations", "org.jetbrains", "annotations").versionRef("annotations")
 
             plugin("micronaut.application", "io.micronaut.application").versionRef("micronaut")
             plugin("micronaut.aot", "io.micronaut.aot").versionRef("micronaut")
