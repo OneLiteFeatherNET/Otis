@@ -1,0 +1,23 @@
+name: Build PR
+on: [pull_request]
+jobs:
+  build_pr:
+    if: github.repository_owner == 'OneLiteFeatherNET'
+    name: Build Pull Request Branch
+    runs-on: ${{ matrix.os }}
+    env:
+      ONELITEFEATHER_MAVEN_USERNAME: ${{ secrets.ONELITEFEATHER_MAVEN_USERNAME }}
+      ONELITEFEATHER_MAVEN_PASSWORD: ${{ secrets.ONELITEFEATHER_MAVEN_PASSWORD }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Build on ${{ matrix.os }}
+        run: ./gradlew clean build
