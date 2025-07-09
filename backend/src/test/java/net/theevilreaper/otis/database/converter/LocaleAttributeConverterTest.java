@@ -35,6 +35,6 @@ class LocaleAttributeConverterTest {
         Locale locale = Locale.GERMANY;
         String stringLocale = localeAttributeConverter.convertToDatabaseColumn(locale);
         assertNotNull(stringLocale);
-        assertEquals(locale.toString(), stringLocale);
+        assertEquals(locale.toLanguageTag(), stringLocale);
     }
 }

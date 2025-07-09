@@ -16,7 +16,12 @@ public final class LocaleAttributeConverter implements AttributeConverter<Locale
     @Override
     public Locale convertToEntityAttribute(String dbData) {
         if (dbData != null && !dbData.trim().isEmpty()) {
-            return Locale.forLanguageTag(dbData);
+            Locale locale = Locale.forLanguageTag(dbData);
+            // If the input is invalid, locale.getLanguage() will be empty
+            if (locale.getLanguage().isEmpty()) {
+                return DEFAULT;
+            }
+            return locale;
         }
         return DEFAULT;
     }
