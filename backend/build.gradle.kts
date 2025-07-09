@@ -32,9 +32,11 @@ dependencies {
     implementation(mn.postgresql)
     implementation(mn.h2)
     implementation(mn.snakeyaml)
-    implementation(mn.log4j)
-    implementation(mn.slf4j.api)
-    implementation(mn.slf4j.simple)
+   // implementation(mn.log4j)
+    implementation(mn.logback.core)
+    implementation(mn.logback.classic)
+   // implementation(mn.slf4j.api)
+   // implementation(mn.slf4j.simple)
     implementation(mn.jackson.core)
     implementation(mn.jackson.databind)
     implementation(mn.jackson.datatype.jsr310)
@@ -83,5 +85,12 @@ tasks {
         options.encoding = "UTF-8"
         options.forkOptions.jvmArgs =
             listOf("-Dmicronaut.openapi.views.spec=rapidoc.enabled=true,openapi-explorer.enabled=true,swagger-ui.enabled=true,swagger-ui.theme=flattop")
+    }
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events("PASSED", "SKIPPED", "FAILED")
+        }
     }
 }
