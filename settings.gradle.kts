@@ -17,7 +17,7 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             version("micronaut", "4.5.4")
-            version("annotations", "26.0.1")
+            version("annotations", "26.0.2")
 
             library("jetbrains.annotations", "org.jetbrains", "annotations").versionRef("annotations")
 
