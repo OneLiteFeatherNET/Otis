@@ -86,4 +86,11 @@ tasks {
         options.forkOptions.jvmArgs =
             listOf("-Dmicronaut.openapi.views.spec=rapidoc.enabled=true,openapi-explorer.enabled=true,swagger-ui.enabled=true,swagger-ui.theme=flattop")
     }
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events("PASSED", "SKIPPED", "FAILED")
+        }
+    }
 }
