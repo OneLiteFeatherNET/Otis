@@ -1,9 +1,9 @@
-package net.theevilreaper.otis.database.entity;
+package net.onelitefeather.otis.database.entity;
 
 import io.micronaut.serde.annotation.Serdeable;
-import net.theevilreaper.otis.database.converter.LocaleAttributeConverter;
-import net.theevilreaper.otis.database.converter.MapStringObjectConverter;
-import net.theevilreaper.otis.dto.OtisPlayerDTO;
+import net.onelitefeather.otis.database.converter.LocaleAttributeConverter;
+import net.onelitefeather.otis.database.converter.MapStringObjectConverter;
+import net.onelitefeather.otis.dto.OtisPlayerDTO;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;

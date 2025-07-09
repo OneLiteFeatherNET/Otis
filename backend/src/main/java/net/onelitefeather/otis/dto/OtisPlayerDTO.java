@@ -1,4 +1,4 @@
-package net.theevilreaper.otis.dto;
+package net.onelitefeather.otis.dto;
 
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;

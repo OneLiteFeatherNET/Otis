@@ -1,4 +1,4 @@
-package net.theevilreaper.otis.database.converter;
+package net.onelitefeather.otis.database.converter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import net.theevilreaper.otis.exception.ObjectConversationException;
+import net.onelitefeather.otis.exception.ObjectConversationException;
 
 import java.io.IOException;
 import java.util.HashMap;
