@@ -23,7 +23,7 @@ publishing {
     publications.create<MavenPublication>("maven") {
 
         version = rootProject.version as String
-        artifactId = "Otis Client Library"
+        artifactId = "otis-client"
         groupId = rootProject.group as String
         pom {
             name = "Otis Client Library"
