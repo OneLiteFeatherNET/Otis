@@ -2,14 +2,6 @@ plugins {
     alias(libs.plugins.micronaut.application)
     alias(libs.plugins.micronaut.aot)
 }
-
-version = "0.1"
-group = "net.onelitefeather"
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     annotationProcessor(mn.micronaut.serde.processor)
     annotationProcessor(mn.micronaut.http.validation)

@@ -1,19 +1,13 @@
 rootProject.name = "otis"
 
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        mavenCentral()
-        maven("https://eldonexus.de/repository/maven-public/")
-    }
-}
-
 plugins {
     id("io.micronaut.platform.catalog") version "4.5.4"
 }
 
-
 dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
     versionCatalogs {
         create("libs") {
             version("micronaut", "4.5.4")
