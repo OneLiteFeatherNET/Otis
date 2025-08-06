@@ -57,7 +57,7 @@ jobs:
             VERSION=$(cat version.txt)
             echo "release_version=$VERSION" >> $GITHUB_OUTPUT
           fi
-  gradle:
+  docker:
     name: Build Docker Artifacts
     runs-on: ubuntu-latest
     needs: release
@@ -78,60 +78,6 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Build Docker Artifacts
         run: ./gradlew jar optimizedBuildLayers optimizedDockerfile -Pversion=${{ needs.release.outputs.release_version }}
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build
-          path: backend/build
-
-#  dockerNative:
-#    runs-on: ubuntu-latest
-#    needs: gradle
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: Download build artifacts
-#        uses: actions/download-artifact@v5
-#        with:
-#          name: build
-#          path: backend/build
-#      - name: Docker meta
-#        id: meta
-#        uses: docker/metadata-action@v5
-#        with:
-#          images: |
-#            ${{ secrets.HARBOR_REGISTRY }}/otis/otis-native
-#          tags: |
-#            type=semver,pattern={{version}},value=${{ needs.release.outputs.release_version }}
-#            type=semver,pattern={{major}}.{{minor}},value=${{ needs.release.outputs.release_version }}
-#            type=semver,pattern={{major}},value=${{ needs.release.outputs.release_version }}
-#      - name: Log in to OneLiteFeather Harbor
-#        uses: docker/login-action@v3
-#        with:
-#          username: ${{ secrets.HARBOR_USERNAME }}
-#          password: ${{ secrets.HARBOR_PASSWORD }}
-#          registry: ${{ secrets.HARBOR_REGISTRY }}
-#      - name: Set up QEMU
-#        uses: docker/setup-qemu-action@v3
-#      - name: Set up Docker Buildx
-#        uses: docker/setup-buildx-action@v3
-#      - name: Build and push
-#        uses: docker/build-push-action@v6
-#        with:
-#          push: true
-#          tags: ${{ steps.meta.outputs.tags }}
-#          labels: ${{ steps.meta.outputs.labels }}
-#          context: ./backend/build/docker/native-optimized
-
-  docker:
-    runs-on: ubuntu-latest
-    needs: gradle
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download build artifacts
-        uses: actions/download-artifact@v5
-        with:
-          name: build
-          path: backend/build
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
