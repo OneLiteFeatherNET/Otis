@@ -88,6 +88,7 @@ jobs:
             type=semver,pattern={{version}},value=${{ needs.release.outputs.release_version }}
             type=semver,pattern={{major}}.{{minor}},value=${{ needs.release.outputs.release_version }}
             type=semver,pattern={{major}},value=${{ needs.release.outputs.release_version }}
+            type=sha
       - name: Log in to OneLiteFeather Harbor
         uses: docker/login-action@v3
         with:
