@@ -41,7 +41,7 @@ dependencies {
 
 
 application {
-    mainClass = "net.theevilreaper.OtisApplication"
+    mainClass = "net.onelitefeather.otis.OtisApplication"
 }
 java {
     toolchain {
@@ -56,7 +56,7 @@ micronaut {
     testRuntime("junit5")
     processing {
         incremental(true)
-        annotations("net.theevilreaper.*")
+        annotations("net.onelitefeather.otis.*")
     }
     aot {
         // Please review carefully the optimizations enabled below
