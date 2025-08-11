@@ -16,6 +16,8 @@ import jakarta.validation.Valid;
 import net.onelitefeather.otis.database.entity.OtisPlayer;
 import net.onelitefeather.otis.database.repository.OtisPlayerRepository;
 import net.onelitefeather.otis.dto.OtisPlayerDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +25,7 @@ import java.util.UUID;
 @Controller("/otis")
 public class OtisRequestsController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OtisRequestsController.class);
     private final OtisPlayerRepository repository;
 
     @Inject
@@ -54,8 +57,10 @@ public class OtisRequestsController {
     @Validated
     @Post
     public HttpResponse<OtisPlayerDTO> add(@Valid OtisPlayerDTO playerDTO) {
+        LOGGER.info("Adding new player: {}", playerDTO);
         OtisPlayer otisPlayer = OtisPlayer.toEntity(playerDTO);
         OtisPlayer saved = repository.save(otisPlayer);
+        LOGGER.info("Saved player: {}", saved);
         return HttpResponse.ok(saved.toDto());
     }
 
