@@ -93,7 +93,4 @@ tasks {
             events("PASSED", "SKIPPED", "FAILED")
         }
     }
-    this.openApiGenerate {
-        dependsOn("compileJava")
-    }
 }
