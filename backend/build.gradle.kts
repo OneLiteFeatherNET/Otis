@@ -5,6 +5,9 @@ plugins {
 dependencies {
     annotationProcessor(mn.micronaut.serde.processor)
     annotationProcessor(mn.micronaut.http.validation)
+    annotationProcessor(mn.micronaut.data.processor)
+    annotationProcessor(mn.micronaut.validation.processor)
+    annotationProcessor(mn.micronaut.inject.java)
     annotationProcessor(mn.micronaut.openapi)
 
     compileOnly(mn.micronaut.openapi.annotations)
@@ -16,6 +19,8 @@ dependencies {
     implementation(mn.micronaut.micrometer.core)
     implementation(mn.micronaut.micrometer.registry.prometheus)
     implementation(mn.micronaut.http.client.jdk)
+    implementation(mn.micronaut.openapi)
+    implementation(mn.swagger.core)
     implementation(mn.micronaut.cache.caffeine)
     implementation(mn.micronaut.data.spring.jpa)
     implementation(mn.micronaut.serde.jackson)
@@ -87,5 +92,8 @@ tasks {
         testLogging {
             events("PASSED", "SKIPPED", "FAILED")
         }
+    }
+    this.openApiGenerate {
+        dependsOn("compileJava")
     }
 }
