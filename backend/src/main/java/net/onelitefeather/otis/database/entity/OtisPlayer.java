@@ -38,7 +38,7 @@ public class OtisPlayer {
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> profileTexture;
 
-    @ColumnDefault(value = "en-US")
+    @ColumnDefault(value = "'en-US'")
     @Convert(converter = LocaleAttributeConverter.class)
     private Locale locale;
 
