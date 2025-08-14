@@ -6,13 +6,13 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
-import net.onelitefeather.otis.client.OtisClient;
+import net.onelitefeather.otis.client.invoker.ApiClient;
+import net.onelitefeather.otis.client.invoker.Configuration;
 import net.onelitefeather.otis.velocity.config.OtisConfig;
 import net.onelitefeather.otis.velocity.listener.PlayerListener;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
-import java.time.Duration;
 
 @Plugin(id = "otis", name = "Otis", version = "0.0.1",
         url = "https://onelitefeather.net", description = "We did it!", authors = {"OneLiteFeatherNET"})
@@ -22,7 +22,7 @@ public class OtisPlugin {
     private final Path dataDirectory;
     
     private OtisConfig config;
-    private OtisClient client;
+    private ApiClient client;
 
     @Inject
     public OtisPlugin(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
@@ -36,9 +36,9 @@ public class OtisPlugin {
         // Load configuration
         this.config = OtisConfig.load(dataDirectory.resolve("config.json"));
         this.logger.info("Loaded configuration with base URL: {}", config.getBaseUrl());
-        
-        // Initialize client
-        this.client = OtisClient.newClient(config.getBaseUrl(), Duration.ofSeconds(10));
+
+        this.client = Configuration.getDefaultApiClient();
+        this.client.updateBaseUri(config.getBaseUrl());
         this.logger.info("Initialized Otis client");
         
         // Register event listeners
@@ -53,7 +53,7 @@ public class OtisPlugin {
      *
      * @return the Otis client
      */
-    public OtisClient getClient() {
+    public ApiClient getClient() {
         return client;
     }
     

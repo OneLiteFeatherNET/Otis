@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.micronaut.application)
     alias(libs.plugins.micronaut.aot)
+    id("org.openapi.generator") version "7.14.0"
 }
 dependencies {
     annotationProcessor(mn.micronaut.serde.processor)
@@ -37,6 +38,34 @@ dependencies {
     testImplementation(mn.junit.jupiter.api)
     testImplementation(mn.junit.jupiter.params)
     testRuntimeOnly(mn.junit.jupiter.engine)
+}
+
+// OpenAPI Generator configuration
+openApiGenerate {
+    generatorName.set("java")
+    library.set("native")
+    inputSpec.set("$projectDir/build/classes/java/main/META-INF/swagger/otis-api-0.0.1.yml")
+    outputDir.set("$projectDir/build/generated/java-client")
+    apiPackage.set("net.onelitefeather.otis.client.api")
+    invokerPackage.set("net.onelitefeather.otis.client.invoker")
+    modelPackage.set("net.onelitefeather.otis.client.model")
+    additionalProperties.set(
+        mapOf(
+            "dateLibrary" to "java8",
+            "useTags" to "true",
+            "interfaceOnly" to "true",
+            "useSpringBoot3" to "false",
+            "useSpring4Annotations" to "false",
+            "useJakartaEe" to "true",
+            "serializationLibrary" to "gson",
+            "artifactId" to "otis-client",
+            "groupId" to "net.onelitefeather.otis",
+            "generateBuilders" to "true",
+
+            "useJava8Time" to "true",
+            "hideGenerationTimestamp" to "true"
+        )
+    )
 }
 
 

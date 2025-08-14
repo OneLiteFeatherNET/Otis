@@ -5,9 +5,15 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":client"))
+    implementation(project(":java-client"))
     compileOnly(libs.velocity.api)
     annotationProcessor(libs.velocity.api)
+}
+
+tasks {
+    build {
+        dependsOn(project(":backend").tasks.getByName("openApiGenerate"))
+    }
 }
 
 publishing {
