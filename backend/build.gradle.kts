@@ -6,6 +6,9 @@ plugins {
 dependencies {
     annotationProcessor(mn.micronaut.serde.processor)
     annotationProcessor(mn.micronaut.http.validation)
+    annotationProcessor(mn.micronaut.data.processor)
+    annotationProcessor(mn.micronaut.validation.processor)
+    annotationProcessor(mn.micronaut.inject.java)
     annotationProcessor(mn.micronaut.openapi)
 
     compileOnly(mn.micronaut.openapi.annotations)
@@ -13,7 +16,12 @@ dependencies {
     implementation(mn.micronaut.http.validation)
     implementation(mn.micronaut.runtime)
     implementation(mn.validation)
+    implementation(mn.micronaut.management)
+    implementation(mn.micronaut.micrometer.core)
+    implementation(mn.micronaut.micrometer.registry.prometheus)
     implementation(mn.micronaut.http.client.jdk)
+    implementation(mn.micronaut.openapi)
+    implementation(mn.swagger.core)
     implementation(mn.micronaut.cache.caffeine)
     implementation(mn.micronaut.data.spring.jpa)
     implementation(mn.micronaut.serde.jackson)
@@ -70,7 +78,7 @@ openApiGenerate {
 
 
 application {
-    mainClass = "net.theevilreaper.OtisApplication"
+    mainClass = "net.onelitefeather.otis.OtisApplication"
 }
 java {
     toolchain {
@@ -85,7 +93,7 @@ micronaut {
     testRuntime("junit5")
     processing {
         incremental(true)
-        annotations("net.theevilreaper.*")
+        annotations("net.onelitefeather.otis.*")
     }
     aot {
         // Please review carefully the optimizations enabled below
