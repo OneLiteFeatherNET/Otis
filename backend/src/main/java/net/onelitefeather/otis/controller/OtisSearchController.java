@@ -35,6 +35,7 @@ public class OtisSearchController {
 
     @Operation(
             summary = "Search for a player by their ID",
+            operationId = "searchById",
             description = "Returns the player information if found, otherwise returns 404 Not Found.",
             tags = {"Player", "Search"}
     )
@@ -68,6 +69,7 @@ public class OtisSearchController {
 
     @Operation(
             summary = "Search for a player by their name",
+            operationId = "searchByName",
             description = "Returns the player information if found, otherwise returns 404 Not Found.",
             tags = {"Player", "Search"}
     )
