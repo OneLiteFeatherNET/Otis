@@ -35,6 +35,7 @@ public class OtisRequestsController {
 
     @Operation(
             summary = "Add a new Otis player",
+            operationId = "addPlayer",
             description = "This endpoint allows you to add a new Otis player to the database.",
             tags = {"Player"}
     )
@@ -66,6 +67,7 @@ public class OtisRequestsController {
 
     @Operation(
             summary = "Get Otis player by ID",
+            operationId = "getPlayerById",
             description = "This endpoint retrieves an Otis player by their UUID.",
             tags = {"Player"}
     )
@@ -97,6 +99,7 @@ public class OtisRequestsController {
 
     @Operation(
             summary = "Get Otis player by name",
+            operationId = "getPlayerByName",
             description = "This endpoint retrieves an Otis player by their name.",
             tags = {"Player"}
     )
@@ -128,6 +131,7 @@ public class OtisRequestsController {
 
     @Operation(
             summary = "Update an existing Otis player",
+            operationId = "updatePlayer",
             description = "This endpoint allows you to update an existing Otis player in the database.",
             tags = {"Player"}
     )
@@ -160,6 +164,7 @@ public class OtisRequestsController {
 
     @Operation(
             summary = "Delete an Otis player",
+            operationId = "deletePlayer",
             description = "This endpoint allows you to delete an Otis player from the database.",
             tags = {"Player"}
     )
@@ -198,6 +203,7 @@ public class OtisRequestsController {
      */
     @Operation(
             summary = "Get all Otis players",
+            operationId = "getAllPlayers",
             description = "This endpoint retrieves all Otis players from the database.",
             tags = {"Player"}
     )
@@ -217,7 +223,7 @@ public class OtisRequestsController {
                     schema = @Schema(implementation = String.class)
             )
     )
-    @Get(uris = {"/getAll", "/all"})
+    @Get(uris = {"/all"})
     public HttpResponse<Iterable<OtisPlayerDTO>> getAll(Pageable pageable) {
         Page<OtisPlayer> entities = this.repository.findAll(pageable);
         if (entities.isEmpty()) {
