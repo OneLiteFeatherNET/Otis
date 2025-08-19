@@ -10,8 +10,8 @@
     [
       "@semantic-release/exec",
       {
-        "verifyConditionsCmd": "./gradlew openApiGenerate check",
-        "publishCmd": "./gradlew -Pversion=${nextRelease.version} openApiGenerate publish && echo '${nextRelease.version}' > version.txt"
+        "verifyConditionsCmd": "./gradlew check",
+        "publishCmd": "./gradlew -Pversion=${nextRelease.version} publish && echo '${nextRelease.version}' > version.txt"
       }
     ],
     "@semantic-release/git",

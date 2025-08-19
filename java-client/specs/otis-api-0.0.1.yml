@@ -1,0 +1,364 @@
+openapi: 3.0.1
+info:
+  title: Otis API
+  description: Simple user management system
+  contact:
+    name: Management
+    url: https://onelitefeather.net
+    email: admin@onelitefeather.net
+  license:
+    name: Apache-2.0
+  version: 0.0.1
+tags:
+- name: Player
+  description: Player management
+paths:
+  /otis:
+    post:
+      tags:
+      - Player
+      summary: Add a new Otis player
+      description: This endpoint allows you to add a new Otis player to the database.
+      operationId: add
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                playerDTO:
+                  $ref: "#/components/schemas/OtisPlayerDTO"
+        required: true
+      responses:
+        "200":
+          description: Player added successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtisPlayerDTO"
+        "500":
+          description: The player could not be added to the database
+          content:
+            application/json:
+              schema:
+                type: string
+  /otis/all:
+    get:
+      tags:
+      - Player
+      summary: Get all Otis players
+      description: This endpoint retrieves all Otis players from the database.
+      operationId: getAll
+      parameters:
+      - name: pageable
+        in: query
+        description: the pageable instance
+        required: true
+        schema:
+          $ref: "#/components/schemas/Pageable"
+      responses:
+        "200":
+          description: Players retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtisPlayerDTO"
+        "404":
+          description: No players found
+          content:
+            application/json:
+              schema:
+                type: string
+  /otis/byId/{owner}:
+    get:
+      tags:
+      - Player
+      summary: Get Otis player by ID
+      description: This endpoint retrieves an Otis player by their UUID.
+      operationId: getById
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Player was successfully found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtisPlayerDTO"
+        "404":
+          description: Player not found
+          content:
+            application/json:
+              schema:
+                type: string
+  /otis/byName/{owner}:
+    get:
+      tags:
+      - Player
+      summary: Get Otis player by name
+      description: This endpoint retrieves an Otis player by their name.
+      operationId: getByString
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Player was successfully found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtisPlayerDTO"
+        "404":
+          description: Player not found
+          content:
+            application/json:
+              schema:
+                type: string
+  /otis/delete/{owner}:
+    post:
+      tags:
+      - Player
+      summary: Delete an Otis player
+      description: This endpoint allows you to delete an Otis player from the database.
+      operationId: delete
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Player deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtisPlayerDTO"
+        "404":
+          description: Player not found
+          content:
+            application/json:
+              schema:
+                type: string
+  /otis/getAll:
+    get:
+      tags:
+      - Player
+      summary: Get all Otis players
+      description: This endpoint retrieves all Otis players from the database.
+      operationId: getAll_1
+      parameters:
+      - name: pageable
+        in: query
+        description: the pageable instance
+        required: true
+        schema:
+          $ref: "#/components/schemas/Pageable"
+      responses:
+        "200":
+          description: Players retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtisPlayerDTO"
+        "404":
+          description: No players found
+          content:
+            application/json:
+              schema:
+                type: string
+  /otis/update/{owner}:
+    post:
+      tags:
+      - Player
+      summary: Update an existing Otis player
+      description: This endpoint allows you to update an existing Otis player in the
+        database.
+      operationId: update
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                playerDTO:
+                  $ref: "#/components/schemas/OtisPlayerDTO"
+        required: true
+      responses:
+        "200":
+          description: Player updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtisPlayerDTO"
+        "400":
+          description: "Bad request, player UUID does not match the owner"
+          content:
+            application/json:
+              schema:
+                type: string
+  /search/byId/{id}:
+    get:
+      tags:
+      - Player
+      - Search
+      summary: Search for a player by their ID
+      description: "Returns the player information if found, otherwise returns 404\
+        \ Not Found."
+      operationId: searchById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Player found and returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtisPlayerDTO"
+        "404":
+          description: Player not found.
+          content:
+            application/json:
+              schema:
+                type: string
+  /search/byName/{name}:
+    get:
+      tags:
+      - Player
+      - Search
+      summary: Search for a player by their name
+      description: "Returns the player information if found, otherwise returns 404\
+        \ Not Found."
+      operationId: searchByName
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          maxLength: 16
+          minLength: 3
+          pattern: "^[a-zA-Z0-9_]+$"
+          type: string
+          x-pattern-message: Username can only contain alphanumeric characters and
+            underscores.
+      responses:
+        "200":
+          description: Player found and returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtisPlayerDTO"
+        "404":
+          description: Player not found.
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas:
+    OtisPlayerDTO:
+      required:
+      - firstJoin
+      - lastJoin
+      - locale
+      - playerName
+      - profileTextures
+      - uuid
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        playerName:
+          maxLength: 16
+          minLength: 3
+          pattern: "^[a-zA-Z0-9_]+$"
+          type: string
+          x-pattern-message: Username can only contain alphanumeric characters and
+            underscores.
+          x-size-message: Username must be between 3 and 16 characters.
+        firstJoin:
+          type: integer
+          format: int64
+        lastJoin:
+          type: integer
+          format: int64
+        profileTextures:
+          type: object
+          additionalProperties: true
+        locale:
+          type: string
+    Pageable:
+      required:
+      - size
+      - sort
+      type: object
+      allOf:
+      - $ref: "#/components/schemas/Sort"
+      - properties:
+          number:
+            type: integer
+            format: int32
+          size:
+            type: integer
+            format: int32
+          mode:
+            $ref: "#/components/schemas/Pageable.Mode"
+          sort:
+            $ref: "#/components/schemas/Sort"
+    Pageable.Mode:
+      type: string
+      enum:
+      - CURSOR_NEXT
+      - CURSOR_PREVIOUS
+      - OFFSET
+    Sort:
+      required:
+      - orderBy
+      type: object
+      properties:
+        orderBy:
+          type: array
+          items:
+            $ref: "#/components/schemas/Sort.Order"
+    Sort.Order:
+      required:
+      - direction
+      - ignoreCase
+      - property
+      type: object
+      properties:
+        ignoreCase:
+          type: boolean
+        direction:
+          $ref: "#/components/schemas/Sort.Order.Direction"
+        property:
+          type: string
+        ascending:
+          type: boolean
+    Sort.Order.Direction:
+      type: string
+      enum:
+      - ASC
+      - DESC

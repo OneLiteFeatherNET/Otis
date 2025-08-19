@@ -34,9 +34,5 @@ dependencyResolutionManagement {
     }
 }
 include("backend")
-var path = file("backend/build/generated/java-client")
-if (path.exists()) {
-    include("velocity-plugin")
-    include("java-client")
-    project(":java-client").projectDir = path
-}
+include("java-client")
+include("velocity-plugin")

@@ -1,25 +1,73 @@
 plugins {
     id("java")
-    alias(libs.plugins.shadow)
+    id("org.openapi.generator") version "7.14.0"
     `maven-publish`
 }
 
-dependencies {
-    implementation(project(":java-client"))
-    compileOnly(libs.velocity.api)
-    annotationProcessor(libs.velocity.api)
+val outDir = layout.buildDirectory.dir("generated/openapi")
+
+
+// OpenAPI Generator configuration
+openApiGenerate {
+    generatorName.set("java")
+    library.set("native")
+    inputSpec.set("$projectDir/specs/otis-api-0.0.1.yml")
+    outputDir.set(outDir.get().asFile.absolutePath)
+    apiPackage.set("net.onelitefeather.otis.client.api")
+    invokerPackage.set("net.onelitefeather.otis.client.invoker")
+    modelPackage.set("net.onelitefeather.otis.client.model")
+    additionalProperties.set(
+        mapOf(
+            "dateLibrary" to "java8",
+            "useTags" to "true",
+            "interfaceOnly" to "true",
+            "useSpringBoot3" to "false",
+            "useSpring4Annotations" to "false",
+            "useJakartaEe" to "true",
+            "serializationLibrary" to "gson",
+            "artifactId" to "otis-client",
+            "groupId" to "net.onelitefeather.otis",
+            "artifactVersion" to rootProject.version.toString(),
+            "buildTool" to "gradle",
+            "generateBuilders" to "true",
+
+            "useJava8Time" to "true",
+            "hideGenerationTimestamp" to "true"
+        )
+    )
+    globalProperties.set(
+        mapOf(
+            "apiTests" to "false",
+            "modelTests" to "false"
+        )
+    )
 }
 
+sourceSets.named("main") {
+    java.srcDir(outDir.map { it.dir("src/main/java") })
+}
+
+tasks.named("compileJava") {
+    dependsOn(tasks.named("openApiGenerate"))
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+    withJavadocJar()
+    withSourcesJar()
+}
 
 publishing {
     publications.create<MavenPublication>("maven") {
-        artifact(project.tasks.getByName("shadowJar"))
+        from(components["java"])
         version = rootProject.version as String
-        artifactId = "otis-plugin"
+        artifactId = "otis-client"
         groupId = rootProject.group as String
         pom {
-            name = "Otis Velocity Plugin"
-            description = "The client plugin for Otis."
+            name = "Otis Client API"
+            description = "The client for Otis."
             url = "https://github.com/OneLiteFeatherNET/Otis"
             licenses {
                 license {
