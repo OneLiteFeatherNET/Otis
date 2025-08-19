@@ -55,7 +55,7 @@ sourceSets.named("main") {
 }
 
 tasks.named("compileJava") {
-    mustRunAfter(tasks.named("openApiGenerate"))
+    dependsOn(tasks.named("openApiGenerate"))
 }
 
 tasks {
