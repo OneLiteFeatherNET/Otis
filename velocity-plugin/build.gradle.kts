@@ -10,6 +10,18 @@ dependencies {
     annotationProcessor(libs.velocity.api)
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+tasks {
+    shadowJar {
+        archiveClassifier.set("")
+    }
+}
+
 
 publishing {
     publications.create<MavenPublication>("maven") {
