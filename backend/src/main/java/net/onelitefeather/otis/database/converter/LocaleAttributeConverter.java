@@ -10,6 +10,9 @@ public final class LocaleAttributeConverter implements AttributeConverter<Locale
 
     @Override
     public String convertToDatabaseColumn(Locale attribute) {
+        if (attribute == null || attribute.getLanguage().isEmpty()) {
+            return DEFAULT.toLanguageTag();
+        }
         return attribute.toLanguageTag();
     }
 
