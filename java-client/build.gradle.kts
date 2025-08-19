@@ -54,7 +54,20 @@ sourceSets.named("main") {
     java.srcDir(outDir.map { it.dir("src/main/java") })
 }
 
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+    withJavadocJar()
+    withSourcesJar()
+}
+
 tasks.named("compileJava") {
+    dependsOn(tasks.named("openApiGenerate"))
+}
+
+tasks.named("sourcesJar") {
     dependsOn(tasks.named("openApiGenerate"))
 }
 
@@ -64,14 +77,6 @@ tasks {
             (this as CoreJavadocOptions).addStringOption("Xdoclint:none", "-quiet")
         }
     }
-}
-
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
-    }
-    withJavadocJar()
-    withSourcesJar()
 }
 
 publishing {
