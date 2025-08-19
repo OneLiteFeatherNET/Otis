@@ -6,7 +6,14 @@ plugins {
 
 val outDir = layout.buildDirectory.dir("generated/openapi")
 
-
+dependencies {
+    implementation(libs.jackson.core)
+    implementation(libs.jackson.annotations)
+    implementation(libs.jackson.databind)
+    implementation(libs.jackson.datatype.jsr310)
+    implementation(libs.jackson.databind.nullable)
+    implementation(libs.jakarta.annotation.api)
+}
 // OpenAPI Generator configuration
 openApiGenerate {
     generatorName.set("java")
@@ -48,7 +55,15 @@ sourceSets.named("main") {
 }
 
 tasks.named("compileJava") {
-    dependsOn(tasks.named("openApiGenerate"))
+    mustRunAfter(tasks.named("openApiGenerate"))
+}
+
+tasks {
+    javadoc {
+        options {
+            (this as CoreJavadocOptions).addStringOption("Xdoclint:none", "-quiet")
+        }
+    }
 }
 
 java {
