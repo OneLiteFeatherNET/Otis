@@ -98,7 +98,7 @@ public class PlayerListener {
         OtisPlayerDTO newPlayer = OtisPlayerDTO.builder()
                 .firstJoin(currentTime)
                 .playerName(playerName)
-                .uuid(uuid)
+                .playerUuid(uuid)
                 .profileTextures(new HashMap<>())
                 .build();
 
