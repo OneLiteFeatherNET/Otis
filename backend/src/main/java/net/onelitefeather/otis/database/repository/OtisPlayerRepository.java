@@ -14,4 +14,7 @@ public interface OtisPlayerRepository extends PageableRepository<OtisPlayer, UUI
 
     @Query("SELECT player FROM OtisPlayer player WHERE player.playerName = :name")
     Optional<OtisPlayer> findByName(@Param("name") String name);
+
+    @Query("SELECT player FROM OtisPlayer player WHERE player.playerUuid = :uuid")
+    Optional<OtisPlayer> findByPlayerUuid(@Param("uuid") UUID uuid);
 }

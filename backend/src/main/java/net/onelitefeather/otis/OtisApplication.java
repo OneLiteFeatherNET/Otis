@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @OpenAPIDefinition(
         info = @Info(
                 title = "Otis API",
-                version = "0.0.1",
+                version = "1.0.1",
                 description = "Simple user management system",
                 license = @License(name = "Apache-2.0"),
                 contact = @Contact(url = "https://onelitefeather.net", name = "Management", email = "admin@onelitefeather.net")

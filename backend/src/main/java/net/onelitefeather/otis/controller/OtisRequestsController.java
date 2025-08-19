@@ -60,7 +60,7 @@ public class OtisRequestsController {
     public HttpResponse<OtisPlayerDTO> add(@Valid OtisPlayerDTO playerDTO) {
         LOGGER.info("Adding new player: {}", playerDTO);
         OtisPlayer otisPlayer = OtisPlayer.toEntity(playerDTO);
-        OtisPlayer saved = repository.update(otisPlayer);
+        OtisPlayer saved = repository.save(otisPlayer);
         LOGGER.info("Saved player: {}", saved);
         return HttpResponse.ok(saved.toDto());
     }
@@ -90,7 +90,7 @@ public class OtisRequestsController {
     @Validated
     @Get("/byId/{owner}")
     public HttpResponse<OtisPlayerDTO> getById(@Valid UUID owner) {
-        OtisPlayer entity = this.repository.findById(owner).orElse(null);
+        OtisPlayer entity = this.repository.findByPlayerUuid(owner).orElse(null);
         if (entity == null) {
             return HttpResponse.notFound();
         }

@@ -18,7 +18,7 @@ dependencies {
 openApiGenerate {
     generatorName.set("java")
     library.set("native")
-    inputSpec.set("$projectDir/specs/otis-api-0.0.1.yml")
+    inputSpec.set("$projectDir/specs/otis-api-1.0.1.yml")
     outputDir.set(outDir.get().asFile.absolutePath)
     apiPackage.set("net.onelitefeather.otis.client.api")
     invokerPackage.set("net.onelitefeather.otis.client.invoker")

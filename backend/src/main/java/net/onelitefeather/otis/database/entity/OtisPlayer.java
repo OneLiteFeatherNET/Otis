@@ -22,12 +22,17 @@ import java.util.UUID;
 
 @Serdeable
 @Entity
-@Table(name = "otis_player", indexes = @Index(columnList = "uuid"))
+@Table(name = "otis_player", indexes = {
+        @Index(name = "idx_player_uuid", columnList = "playerUuid"),
+        @Index(name = "idx_player_name", columnList = "playerName")
+})
 public class OtisPlayer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID uuid;
+
+    private UUID playerUuid;
 
     private String playerName;
 
@@ -45,6 +50,7 @@ public class OtisPlayer {
     public static OtisPlayer toEntity(OtisPlayerDTO otisPlayerDTO) {
         return new OtisPlayer(
                 otisPlayerDTO.uuid(),
+                otisPlayerDTO.playerUuid(),
                 otisPlayerDTO.playerName(),
                 otisPlayerDTO.firstJoin(),
                 otisPlayerDTO.lastJoin(),
@@ -64,14 +70,17 @@ public class OtisPlayer {
      * Creates a new instance of the {@link OtisPlayer} with all required values.
      *
      * @param uuid           the unique identifier from the player
+     * @param playerUuid     the unique player UUID from mojang
      * @param playerName     the name from the player
      * @param firstJoin      the first join from the player
      * @param lastJoin       the last join from the player
      * @param profileTexture the profile texture from the player
      * @param locale         the locale from the player
      */
-    public OtisPlayer(UUID uuid, String playerName, long firstJoin, long lastJoin, Map<String, Object> profileTexture, Locale locale) {
+    public OtisPlayer(UUID uuid, UUID playerUuid, String playerName, long firstJoin, long lastJoin,
+                      Map<String, Object> profileTexture, Locale locale) {
         this.uuid = uuid;
+        this.playerUuid = playerUuid;
         this.playerName = playerName;
         this.firstJoin = firstJoin;
         this.lastJoin = lastJoin;
@@ -118,6 +127,7 @@ public class OtisPlayer {
     public OtisPlayerDTO toDto() {
         return new OtisPlayerDTO(
                 this.uuid,
+                this.playerUuid,
                 this.playerName,
                 this.firstJoin,
                 this.lastJoin,

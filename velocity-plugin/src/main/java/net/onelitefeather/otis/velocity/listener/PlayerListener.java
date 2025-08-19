@@ -7,16 +7,14 @@ import com.velocitypowered.api.proxy.Player;
 import net.onelitefeather.otis.client.api.PlayerApi;
 import net.onelitefeather.otis.client.invoker.ApiClient;
 import net.onelitefeather.otis.client.invoker.ApiException;
-import net.onelitefeather.otis.client.model.AddRequest;
+import net.onelitefeather.otis.client.model.AddPlayerRequest;
 import net.onelitefeather.otis.client.model.OtisPlayerDTO;
 import net.onelitefeather.otis.velocity.OtisPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Listener for player events to create and update player data.
@@ -50,7 +48,7 @@ public class PlayerListener {
         ApiClient client = this.plugin.getClient();
         PlayerApi apiInstance = new PlayerApi(client);
         try {
-            OtisPlayerDTO id = apiInstance.getById(uuid);
+            OtisPlayerDTO id = apiInstance.getPlayerById(uuid);
             updatePlayer(uuid, playerName, id, currentTime);
         } catch (ApiException e) {
             if (e.getCode() == 404) {
@@ -78,7 +76,7 @@ public class PlayerListener {
         ApiClient client = this.plugin.getClient();
         PlayerApi apiInstance = new PlayerApi(client);
         try {
-            OtisPlayerDTO existingPlayer = apiInstance.getById(uuid);
+            OtisPlayerDTO existingPlayer = apiInstance.getPlayerById(uuid);
             updatePlayer(uuid, playerName, existingPlayer, currentTime);
         } catch (ApiException e) {
             if (e.getCode() == 404) {
@@ -107,7 +105,7 @@ public class PlayerListener {
         ApiClient client = this.plugin.getClient();
         PlayerApi apiInstance = new PlayerApi(client);
         try {
-            apiInstance.add(AddRequest.builder()
+            apiInstance.addPlayer(AddPlayerRequest.builder()
                     .playerDTO(newPlayer).build());
         } catch (ApiException e) {
             if (e.getCode() == 500) {
@@ -138,7 +136,7 @@ public class PlayerListener {
         ApiClient client = this.plugin.getClient();
         PlayerApi apiInstance = new PlayerApi(client);
         try {
-            apiInstance.update(uuid, AddRequest.builder()
+            apiInstance.updatePlayer(uuid, AddPlayerRequest.builder()
                     .playerDTO(updatedPlayer).build());
         } catch (ApiException e) {
             if (e.getCode() == 400) {
