@@ -60,7 +60,7 @@ public class OtisRequestsController {
     public HttpResponse<OtisPlayerDTO> add(@Valid OtisPlayerDTO playerDTO) {
         LOGGER.info("Adding new player: {}", playerDTO);
         OtisPlayer otisPlayer = OtisPlayer.toEntity(playerDTO);
-        OtisPlayer saved = repository.save(otisPlayer);
+        OtisPlayer saved = repository.update(otisPlayer);
         LOGGER.info("Saved player: {}", saved);
         return HttpResponse.ok(saved.toDto());
     }
