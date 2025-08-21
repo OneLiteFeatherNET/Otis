@@ -35,7 +35,7 @@ dependencyResolutionManagement {
             library("jackson-databind",    "com.fasterxml.jackson.core", "jackson-databind").versionRef("jackson")
             library("jackson-datatype-jsr310", "com.fasterxml.jackson.datatype", "jackson-datatype-jsr310").versionRef("jackson")
 
-            library("jackson-databind-nullable", "org.openapitools", "jackson-databind-nullable").version("0.2.6")
+            library("jackson-databind-nullable", "org.openapitools", "jackson-databind-nullable").version("0.2.7")
             library("jakarta-annotation-api", "jakarta.annotation", "jakarta.annotation-api").versionRef("jakarta-annotation")
 
 
