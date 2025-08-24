@@ -16,8 +16,8 @@ dependencyResolutionManagement {
             version("shadow", "9.0.2")
             version("velocity", "3.4.0-SNAPSHOT")
 
-            version("jackson", "2.17.1")
-            version("jakarta-annotation", "2.1.1")
+            version("jackson", "2.19.2")
+            version("jakarta-annotation", "3.0.0")
 
             library(
                 "jetbrains.annotations",
@@ -35,7 +35,7 @@ dependencyResolutionManagement {
             library("jackson-databind",    "com.fasterxml.jackson.core", "jackson-databind").versionRef("jackson")
             library("jackson-datatype-jsr310", "com.fasterxml.jackson.datatype", "jackson-datatype-jsr310").versionRef("jackson")
 
-            library("jackson-databind-nullable", "org.openapitools", "jackson-databind-nullable").version("0.2.6")
+            library("jackson-databind-nullable", "org.openapitools", "jackson-databind-nullable").version("0.2.7")
             library("jakarta-annotation-api", "jakarta.annotation", "jakarta.annotation-api").versionRef("jakarta-annotation")
 
 
