@@ -177,7 +177,7 @@ public class OtisRequestsController {
         otisPlayer.setProfileTexture(playerDTO.profileTextures());
         otisPlayer.setLocale(playerDTO.locale());
 
-        OtisPlayer saved = repository.save(otisPlayer);
+        OtisPlayer saved = repository.update(otisPlayer);
         return HttpResponse.ok(saved.toDto());
     }
 
