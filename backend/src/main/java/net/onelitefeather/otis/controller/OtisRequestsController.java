@@ -154,7 +154,7 @@ public class OtisRequestsController {
     @Validated
     @Post("/update/{owner}")
     public HttpResponse<OtisPlayerDTO> update(@Valid UUID owner, @Valid OtisPlayerDTO playerDTO) {
-        if (!playerDTO.uuid().equals(owner)) {
+        if (!playerDTO.playerUuid().equals(owner)) {
             return HttpResponse.badRequest();
         }
         OtisPlayer otisPlayer = OtisPlayer.toEntity(playerDTO);
