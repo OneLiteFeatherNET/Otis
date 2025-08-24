@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Controller("/otis")
@@ -144,6 +145,14 @@ public class OtisRequestsController {
             )
     )
     @ApiResponse(
+            responseCode = "404",
+            description = "Player not found",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = String.class)
+            )
+    )
+    @ApiResponse(
             responseCode = "400",
             description = "Bad request, player UUID does not match the owner",
             content = @Content(
@@ -157,7 +166,17 @@ public class OtisRequestsController {
         if (!playerDTO.playerUuid().equals(owner)) {
             return HttpResponse.badRequest();
         }
-        OtisPlayer otisPlayer = OtisPlayer.toEntity(playerDTO);
+        Optional<OtisPlayer> byPlayerUuid = repository.findByPlayerUuid(owner);
+        if (byPlayerUuid.isEmpty()) {
+            return HttpResponse.notFound();
+        }
+
+        OtisPlayer otisPlayer = byPlayerUuid.get();
+        otisPlayer.setLastJoin(playerDTO.lastJoin());
+        otisPlayer.setPlayerName(playerDTO.playerName());
+        otisPlayer.setProfileTexture(playerDTO.profileTextures());
+        otisPlayer.setLocale(playerDTO.locale());
+
         OtisPlayer saved = repository.save(otisPlayer);
         return HttpResponse.ok(saved.toDto());
     }

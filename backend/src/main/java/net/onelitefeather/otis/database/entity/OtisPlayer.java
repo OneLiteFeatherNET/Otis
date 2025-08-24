@@ -124,6 +124,23 @@ public class OtisPlayer {
         return locale;
     }
 
+    public void setFirstJoin(final long firstJoin) {
+        this.firstJoin = firstJoin;
+    }
+
+    public void setPlayerName(final String playerName) {
+        this.playerName = playerName;
+    }
+
+    public void setPlayerUuid(final UUID playerUuid) {
+        this.playerUuid = playerUuid;
+    }
+
+    public UUID getPlayerUuid() {
+        return playerUuid;
+    }
+
+
     public OtisPlayerDTO toDto() {
         return new OtisPlayerDTO(
                 this.uuid,
