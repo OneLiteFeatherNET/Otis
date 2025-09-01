@@ -8,6 +8,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -231,7 +232,9 @@ public class OtisRequestsController {
             description = "Players retrieved successfully",
             content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = OtisPlayerDTO.class)
+                    array = @ArraySchema(schema = @Schema(implementation = OtisPlayerDTO.class),
+                            arraySchema = @Schema(implementation = Page.class)
+                    )
             )
     )
     @ApiResponse(
@@ -243,10 +246,10 @@ public class OtisRequestsController {
             )
     )
     @Get(uris = {"/all"})
-    public HttpResponse<Iterable<OtisPlayerDTO>> getAll(Pageable pageable) {
+    public HttpResponse<Page<OtisPlayerDTO>> getAll(Pageable pageable) {
         Page<OtisPlayer> entities = this.repository.findAll(pageable);
         if (entities.isEmpty()) {
-            return HttpResponse.ok(List.of());
+            return HttpResponse.ok(Page.empty());
         }
         return HttpResponse.ok(entities.map(OtisPlayer::toDto));
     }
