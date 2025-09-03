@@ -30,10 +30,11 @@ dependencyResolutionManagement {
                 "velocity-api"
             ).versionRef("velocity")
 
-            library("jackson-core",        "com.fasterxml.jackson.core", "jackson-core").versionRef("jackson")
-            library("jackson-annotations", "com.fasterxml.jackson.core", "jackson-annotations").versionRef("jackson")
-            library("jackson-databind",    "com.fasterxml.jackson.core", "jackson-databind").versionRef("jackson")
-            library("jackson-datatype-jsr310", "com.fasterxml.jackson.datatype", "jackson-datatype-jsr310").versionRef("jackson")
+            library("jackson-bom",  "com.fasterxml.jackson", "jackson-bom").versionRef("jackson")
+            library("jackson-core",        "com.fasterxml.jackson.core", "jackson-core").withoutVersion()
+            library("jackson-annotations", "com.fasterxml.jackson.core", "jackson-annotations").withoutVersion()
+            library("jackson-databind",    "com.fasterxml.jackson.core", "jackson-databind").withoutVersion()
+            library("jackson-datatype-jsr310", "com.fasterxml.jackson.datatype", "jackson-datatype-jsr310").withoutVersion()
 
             library("jackson-databind-nullable", "org.openapitools", "jackson-databind-nullable").version("0.2.7")
             library("jakarta-annotation-api", "jakarta.annotation", "jakarta.annotation-api").versionRef("jakarta-annotation")
