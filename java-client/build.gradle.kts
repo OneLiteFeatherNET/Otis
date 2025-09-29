@@ -7,6 +7,7 @@ plugins {
 val outDir = layout.buildDirectory.dir("generated/openapi")
 
 dependencies {
+    implementation(platform(libs.jackson.bom))
     implementation(libs.jackson.core)
     implementation(libs.jackson.annotations)
     implementation(libs.jackson.databind)
