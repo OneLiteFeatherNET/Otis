@@ -1,7 +1,7 @@
 rootProject.name = "otis"
 
 plugins {
-    id("io.micronaut.platform.catalog") version "4.5.4"
+    id("io.micronaut.platform.catalog") version "4.5.5"
 }
 
 dependencyResolutionManagement {
