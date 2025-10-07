@@ -106,3 +106,14 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           context: ./backend/build/docker/optimized
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.7.0
+
+      - name: Sign image with Cosign
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+        run: |
+          for tag in ${{ steps.meta.outputs.tags }}; do
+            cosign sign --key ${{ secrets.COSIGN_KEY }} $tag
+          done
