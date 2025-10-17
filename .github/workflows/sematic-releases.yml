@@ -108,7 +108,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           context: ./backend/build/docker/optimized
       - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.10.0
+        uses: sigstore/cosign-installer@v3.10.1
       - name: Sign image with a key
         run: |
           images=""
