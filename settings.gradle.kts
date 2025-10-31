@@ -16,7 +16,7 @@ dependencyResolutionManagement {
             version("shadow", "9.2.2")
             version("velocity", "3.4.0-SNAPSHOT")
 
-            version("jackson", "2.20.0")
+            version("jackson", "2.20.1")
             version("jakarta-annotation", "3.0.0")
 
             library(
