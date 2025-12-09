@@ -42,7 +42,7 @@ public class OtisPlugin {
         this.logger.info("Initialized Otis client");
         
         // Register event listeners
-        this.server.getEventManager().register(this, new PlayerListener(this));
+        this.server.getEventManager().register(this, new PlayerListener(this.logger, this.client));
         this.logger.info("Registered event listeners");
         
         this.logger.info("Otis plugin initialized successfully");
