@@ -9,7 +9,6 @@ import net.onelitefeather.otis.client.invoker.ApiClient;
 import net.onelitefeather.otis.client.invoker.ApiException;
 import net.onelitefeather.otis.client.model.AddPlayerRequest;
 import net.onelitefeather.otis.client.model.OtisPlayerDTO;
-import net.onelitefeather.otis.velocity.OtisPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
@@ -21,17 +20,18 @@ import java.util.UUID;
  */
 public class PlayerListener {
 
-    private final OtisPlugin plugin;
+    private final PlayerApi playerApi;
     private final Logger logger;
 
     /**
      * Creates a new player listener.
      *
-     * @param plugin the plugin instance
+     * @param logger    the logger
+     * @param apiClient the API client
      */
-    public PlayerListener(@NotNull OtisPlugin plugin) {
-        this.plugin = plugin;
-        this.logger = plugin.getLogger();
+    public PlayerListener(@NotNull Logger logger, @NotNull ApiClient apiClient) {
+        this.playerApi = new PlayerApi(apiClient);
+        this.logger = logger;
     }
 
     /**
@@ -45,10 +45,8 @@ public class PlayerListener {
         UUID uuid = player.getUniqueId();
         String playerName = player.getUsername();
         long currentTime = System.currentTimeMillis();
-        ApiClient client = this.plugin.getClient();
-        PlayerApi apiInstance = new PlayerApi(client);
         try {
-            OtisPlayerDTO id = apiInstance.getPlayerById(uuid);
+            OtisPlayerDTO id = this.playerApi.getPlayerById(uuid);
             updatePlayer(uuid, playerName, id, currentTime);
         } catch (ApiException e) {
             if (e.getCode() == 404) {
@@ -73,10 +71,8 @@ public class PlayerListener {
         UUID uuid = player.getUniqueId();
         String playerName = player.getUsername();
         long currentTime = System.currentTimeMillis();
-        ApiClient client = this.plugin.getClient();
-        PlayerApi apiInstance = new PlayerApi(client);
         try {
-            OtisPlayerDTO existingPlayer = apiInstance.getPlayerById(uuid);
+            OtisPlayerDTO existingPlayer = this.playerApi.getPlayerById(uuid);
             updatePlayer(uuid, playerName, existingPlayer, currentTime);
         } catch (ApiException e) {
             if (e.getCode() == 404) {
@@ -90,8 +86,8 @@ public class PlayerListener {
     /**
      * Creates a new player.
      *
-     * @param uuid       the player UUID
-     * @param playerName the player name
+     * @param uuid        the player UUID
+     * @param playerName  the player name
      * @param currentTime the current time
      */
     private void createPlayer(@NotNull UUID uuid, @NotNull String playerName, long currentTime) {
@@ -101,11 +97,8 @@ public class PlayerListener {
                 .playerUuid(uuid)
                 .profileTextures(new HashMap<>())
                 .build();
-
-        ApiClient client = this.plugin.getClient();
-        PlayerApi apiInstance = new PlayerApi(client);
         try {
-            apiInstance.addPlayer(AddPlayerRequest.builder()
+            this.playerApi.addPlayer(AddPlayerRequest.builder()
                     .playerDTO(newPlayer).build());
         } catch (ApiException e) {
             if (e.getCode() == 500) {
@@ -121,22 +114,20 @@ public class PlayerListener {
     /**
      * Updates an existing player.
      *
-     * @param uuid         the player UUID
-     * @param playerName   the player name
+     * @param uuid           the player UUID
+     * @param playerName     the player name
      * @param existingPlayer the existing player data
-     * @param currentTime  the current time
+     * @param currentTime    the current time
      */
-    private void updatePlayer(@NotNull UUID uuid, @NotNull String playerName, 
-                             @NotNull OtisPlayerDTO existingPlayer, long currentTime) {
+    private void updatePlayer(@NotNull UUID uuid, @NotNull String playerName,
+                              @NotNull OtisPlayerDTO existingPlayer, long currentTime) {
         // Create updated player with new last join time
         OtisPlayerDTO updatedPlayer = existingPlayer.toBuilder()
                 .lastJoin(currentTime)
                 .playerName(playerName)
                 .build();
-        ApiClient client = this.plugin.getClient();
-        PlayerApi apiInstance = new PlayerApi(client);
         try {
-            apiInstance.updatePlayer(uuid, AddPlayerRequest.builder()
+            this.playerApi.updatePlayer(uuid, AddPlayerRequest.builder()
                     .playerDTO(updatedPlayer).build());
         } catch (ApiException e) {
             if (e.getCode() == 400) {
