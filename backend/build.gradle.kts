@@ -1,8 +1,8 @@
-
 plugins {
     alias(libs.plugins.micronaut.application)
     alias(libs.plugins.micronaut.aot)
 }
+
 dependencies {
     annotationProcessor(mn.micronaut.serde.processor)
     annotationProcessor(mn.micronaut.http.validation)
@@ -47,9 +47,6 @@ dependencies {
     testImplementation(mn.junit.jupiter.params)
     testRuntimeOnly(mn.junit.jupiter.engine)
 }
-
-
-
 
 application {
     mainClass = "net.onelitefeather.otis.OtisApplication"

@@ -46,6 +46,7 @@ dependencyResolutionManagement {
         }
     }
 }
+
 include("backend")
 include("java-client")
 include("velocity-plugin")

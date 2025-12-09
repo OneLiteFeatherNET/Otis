@@ -1,5 +1,5 @@
 plugins {
-    id("java")
+    java
     alias(libs.plugins.shadow)
     `maven-publish`
 }
@@ -21,7 +21,6 @@ tasks {
         archiveClassifier.set("")
     }
 }
-
 
 publishing {
     publications.create<MavenPublication>("maven") {
