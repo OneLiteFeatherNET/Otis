@@ -1,5 +1,4 @@
 plugins {
-    java
     alias(libs.plugins.shadow)
     `maven-publish`
 }

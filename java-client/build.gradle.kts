@@ -1,5 +1,4 @@
 plugins {
-    id("java")
     id("org.openapi.generator") version "7.17.0"
     `maven-publish`
 }
@@ -15,6 +14,7 @@ dependencies {
     implementation(libs.jackson.databind.nullable)
     implementation(libs.jakarta.annotation.api)
 }
+
 // OpenAPI Generator configuration
 openApiGenerate {
     generatorName.set("java")
