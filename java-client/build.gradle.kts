@@ -1,5 +1,5 @@
 plugins {
-    id("org.openapi.generator") version "7.17.0"
+    id("org.openapi.generator") version "7.19.0"
     `maven-publish`
 }
 
