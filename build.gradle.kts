@@ -4,7 +4,7 @@ subprojects {
 
     tasks {
         getByName<JavaCompile>("compileJava") {
-            options.release.set(21)
+            options.release.set(25)
             options.encoding = "UTF-8"
         }
         getByName<JacocoReport>("jacocoTestReport") {
