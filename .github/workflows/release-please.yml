@@ -50,9 +50,13 @@ jobs:
     env:
       VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.docker_version || needs.release-please.outputs.version }}
       IMAGE: ${{ secrets.HARBOR_REGISTRY }}/otis/otis
-      # Keep every upload request well below the 100 MB proxy limit by pushing
-      # large blobs in 50 MiB chunks (see regctl --blob-chunk / --blob-max).
-      BLOB_CHUNK: "52428800"
+      # ~90 MB: stays under the Cloudflare 100 MB body cap while cutting the
+      # number of chunks (= fewer round-trips and fewer Harbor S3 multipart
+      # parts, which lowers load on the Ceph RGW backend). Tune via env.
+      BLOB_CHUNK: "90000000"
+      # Upload multiple layers concurrently. Chunks WITHIN one layer stay
+      # sequential (registry protocol). Lower this if the S3 backend returns 5xx.
+      REQ_CONCURRENT: "4"
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -104,7 +108,7 @@ jobs:
           # `docker login` (403) but allows regctl, the infra-intended chunked client.
           # --skip-check skips regctl's anonymous connectivity ping (which a
           # private registry answers with 401); auth happens during the push.
-          regctl registry set --skip-check --blob-chunk "${BLOB_CHUNK}" --blob-max "${BLOB_CHUNK}" "${HARBOR_REGISTRY}"
+          regctl registry set --skip-check --blob-chunk "${BLOB_CHUNK}" --blob-max "${BLOB_CHUNK}" --req-concurrent "${REQ_CONCURRENT}" "${HARBOR_REGISTRY}"
           printf '%s' "${HARBOR_PASSWORD}" | \
             regctl registry login "${HARBOR_REGISTRY}" -u "${HARBOR_USERNAME}" --pass-stdin --skip-check
         env:
