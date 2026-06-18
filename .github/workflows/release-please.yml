@@ -101,8 +101,11 @@ jobs:
         run: |
           echo "--- warp status ---"; warp-cli --accept-tos status || true
           echo "--- warp settings (split tunnel / routes) ---"; warp-cli --accept-tos settings 2>/dev/null | head -40 || true
-          echo "--- DNS resolve ${HOST} ---"; getent hosts "${HOST}" || nslookup "${HOST}" || true
-          echo "--- curl https://${HOST}/v2/ ---"; curl -sv --max-time 15 "https://${HOST}/v2/" 2>&1 | head -30 || true
+          echo "--- DNS resolve ${HOST} (system) ---"; getent hosts "${HOST}" || nslookup "${HOST}" || true
+          echo "--- DNS resolve via WARP 172.17.0.1 ---"; nslookup "${HOST}" 172.17.0.1 || true
+          echo "--- TCP 443 reachability ---"; timeout 10 bash -c "cat < /dev/null > /dev/tcp/${HOST}/443" && echo "TCP 443 OPEN" || echo "TCP 443 FAILED"
+          echo "--- curl https (TLS verify) ---"; curl -sv --max-time 15 "https://${HOST}/v2/" 2>&1 | head -25 || true
+          echo "--- curl https -k (ignore TLS, isolate routing) ---"; curl -skv --max-time 15 "https://${HOST}/v2/" 2>&1 | head -25 || true
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v6
