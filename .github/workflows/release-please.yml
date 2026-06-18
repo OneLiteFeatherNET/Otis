@@ -77,6 +77,8 @@ jobs:
           organization: ${{ secrets.CF_WARP_ORG }}
           auth_client_id: ${{ secrets.CF_WARP_CLIENT_ID }}
           auth_client_secret: ${{ secrets.CF_WARP_CLIENT_SECRET }}
+          # Tunnel virtual network that carries Harbor's private network route.
+          vnet: ${{ secrets.CF_WARP_VNET }}
           configure_docker_dns: true
       - name: Debug internal connectivity
         # Temporary: pinpoints whether the internal Harbor host fails on DNS or routing over WARP.
