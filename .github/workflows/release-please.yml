@@ -49,14 +49,10 @@ jobs:
        github.event_name == 'workflow_dispatch')
     env:
       VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.docker_version || needs.release-please.outputs.version }}
-      IMAGE: ${{ secrets.HARBOR_REGISTRY }}/otis/otis
-      # ~90 MB: stays under the Cloudflare 100 MB body cap while cutting the
-      # number of chunks (= fewer round-trips and fewer Harbor S3 multipart
-      # parts, which lowers load on the Ceph RGW backend). Tune via env.
-      BLOB_CHUNK: "90000000"
-      # Upload multiple layers concurrently. Chunks WITHIN one layer stay
-      # sequential (registry protocol). Lower this if the S3 backend returns 5xx.
-      REQ_CONCURRENT: "4"
+      # Internal Harbor endpoint reached over the WARP private network — NOT the
+      # public Cloudflare tunnel host, so there is no 100 MB body cap and no need
+      # to chunk uploads. The image is pushed with a plain buildx push.
+      IMAGE: ${{ secrets.HARBOR_INTERNAL_REGISTRY }}/otis/otis
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -73,6 +69,15 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
       - name: Build Docker Artifacts
         run: ./gradlew jar optimizedBuildLayers optimizedDockerfile -Pversion=${VERSION}
+      - name: Connect Cloudflare WARP
+        # Enrolls the runner into Zero Trust as a service so Harbor is reachable
+        # via the tunnel's private network route instead of the public HTTP proxy.
+        uses: Boostport/setup-cloudflare-warp@v1
+        with:
+          organization: ${{ secrets.CF_WARP_ORG }}
+          auth_client_id: ${{ secrets.CF_WARP_CLIENT_ID }}
+          auth_client_secret: ${{ secrets.CF_WARP_CLIENT_SECRET }}
+          configure_docker_dns: true
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v6
@@ -86,50 +91,22 @@ jobs:
             type=sha
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-      - name: Build image to OCI archive
+      - name: Log in to internal Harbor
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ secrets.HARBOR_INTERNAL_REGISTRY }}
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+      - name: Build and push
+        id: build
         uses: docker/build-push-action@v7
         with:
           context: ./backend/build/docker/optimized
-          push: false
+          push: true
           provenance: false
           sbom: false
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ${{ env.IMAGE }}:${{ env.VERSION }}
-          outputs: type=oci,dest=${{ runner.temp }}/image.tar
-      - name: Install regctl
-        run: |
-          curl -fsSL https://github.com/regclient/regclient/releases/latest/download/regctl-linux-amd64 \
-            -o "${RUNNER_TEMP}/regctl"
-          chmod +x "${RUNNER_TEMP}/regctl"
-          echo "${RUNNER_TEMP}" >> "$GITHUB_PATH"
-      - name: Configure chunked uploads and login
-        run: |
-          # Harbor is fronted by a Cloudflare tunnel (100 MB body cap) that blocks
-          # `docker login` (403) but allows regctl, the infra-intended chunked client.
-          # --skip-check skips regctl's anonymous connectivity ping (which a
-          # private registry answers with 401); auth happens during the push.
-          regctl registry set --skip-check --blob-chunk "${BLOB_CHUNK}" --blob-max "${BLOB_CHUNK}" --req-concurrent "${REQ_CONCURRENT}" "${HARBOR_REGISTRY}"
-          printf '%s' "${HARBOR_PASSWORD}" | \
-            regctl registry login "${HARBOR_REGISTRY}" -u "${HARBOR_USERNAME}" --pass-stdin --skip-check
-        env:
-          HARBOR_REGISTRY: ${{ secrets.HARBOR_REGISTRY }}
-          HARBOR_USERNAME: ${{ secrets.HARBOR_USERNAME }}
-          HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
-      - name: Push image (chunked)
-        id: push
-        run: |
-          # Push the primary tag with chunked blob uploads, then add the
-          # remaining tags via in-registry copy (cross-repo blob mount = tiny requests).
-          regctl image import "${IMAGE}:${VERSION}" "${RUNNER_TEMP}/image.tar"
-          while IFS= read -r tag; do
-            [ -z "$tag" ] && continue
-            [ "$tag" = "${IMAGE}:${VERSION}" ] && continue
-            regctl image copy "${IMAGE}:${VERSION}" "$tag"
-          done <<< "${TAGS}"
-          DIGEST="$(regctl image digest "${IMAGE}:${VERSION}")"
-          echo "digest=${DIGEST}" >> "$GITHUB_OUTPUT"
-        env:
-          TAGS: ${{ steps.meta.outputs.tags }}
       - name: Install Cosign
         uses: sigstore/cosign-installer@v4.1.2
       - name: Sign image with a key
@@ -139,4 +116,4 @@ jobs:
         env:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-          DIGEST: ${{ steps.push.outputs.digest }}
+          DIGEST: ${{ steps.build.outputs.digest }}
