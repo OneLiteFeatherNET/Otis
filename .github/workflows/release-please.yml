@@ -87,15 +87,19 @@ jobs:
             -o "${RUNNER_TEMP}/regctl"
           chmod +x "${RUNNER_TEMP}/regctl"
           echo "${RUNNER_TEMP}" >> "$GITHUB_PATH"
-      - name: Configure chunked uploads and login
+      - name: Log in to OneLiteFeather Harbor
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ secrets.HARBOR_REGISTRY }}
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+      - name: Configure chunked uploads
         run: |
-          regctl registry set --blob-chunk "${BLOB_CHUNK}" --blob-max "${BLOB_CHUNK}" "${HARBOR_REGISTRY}"
-          printf '%s' "${HARBOR_PASSWORD}" | \
-            regctl registry login "${HARBOR_REGISTRY}" -u "${HARBOR_USERNAME}" --pass-stdin
+          # regctl reuses the credentials written by docker login (~/.docker/config.json);
+          # here we only attach the blob-chunk config. --skip-check avoids an auth ping.
+          regctl registry set --skip-check --blob-chunk "${BLOB_CHUNK}" --blob-max "${BLOB_CHUNK}" "${HARBOR_REGISTRY}"
         env:
           HARBOR_REGISTRY: ${{ secrets.HARBOR_REGISTRY }}
-          HARBOR_USERNAME: ${{ secrets.HARBOR_USERNAME }}
-          HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
       - name: Push image (chunked)
         id: push
         run: |
