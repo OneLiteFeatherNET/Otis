@@ -78,6 +78,16 @@ jobs:
           auth_client_id: ${{ secrets.CF_WARP_CLIENT_ID }}
           auth_client_secret: ${{ secrets.CF_WARP_CLIENT_SECRET }}
           configure_docker_dns: true
+      - name: Debug internal connectivity
+        # Temporary: pinpoints whether the internal Harbor host fails on DNS or routing over WARP.
+        continue-on-error: true
+        env:
+          HOST: ${{ secrets.HARBOR_INTERNAL_REGISTRY }}
+        run: |
+          echo "--- warp status ---"; warp-cli --accept-tos status || true
+          echo "--- warp settings (split tunnel / routes) ---"; warp-cli --accept-tos settings 2>/dev/null | head -40 || true
+          echo "--- DNS resolve ${HOST} ---"; getent hosts "${HOST}" || nslookup "${HOST}" || true
+          echo "--- curl https://${HOST}/v2/ ---"; curl -sv --max-time 15 "https://${HOST}/v2/" 2>&1 | head -30 || true
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v6
