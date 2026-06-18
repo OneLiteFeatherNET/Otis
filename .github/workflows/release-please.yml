@@ -2,6 +2,12 @@ name: release-please
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      docker_version:
+        description: "Version to (re)build & push the Docker image for, e.g. 1.13.2 (no leading v). Runs only the docker job."
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -10,6 +16,7 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
@@ -35,9 +42,13 @@ jobs:
     name: Build Docker Artifacts
     runs-on: ubuntu-latest
     needs: release-please
-    if: needs.release-please.outputs.release_created == 'true'
+    # Runs on a real release, or on a manual dispatch to (re)publish a given version.
+    if: |
+      always() &&
+      ((github.event_name == 'push' && needs.release-please.outputs.release_created == 'true') ||
+       github.event_name == 'workflow_dispatch')
     env:
-      VERSION: ${{ needs.release-please.outputs.version }}
+      VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.docker_version || needs.release-please.outputs.version }}
       IMAGE: ${{ secrets.HARBOR_REGISTRY }}/otis/otis
       # Keep every upload request well below the 100 MB proxy limit by pushing
       # large blobs in 50 MiB chunks (see regctl --blob-chunk / --blob-max).
@@ -87,19 +98,19 @@ jobs:
             -o "${RUNNER_TEMP}/regctl"
           chmod +x "${RUNNER_TEMP}/regctl"
           echo "${RUNNER_TEMP}" >> "$GITHUB_PATH"
-      - name: Log in to OneLiteFeather Harbor
-        uses: docker/login-action@v4
-        with:
-          registry: ${{ secrets.HARBOR_REGISTRY }}
-          username: ${{ secrets.HARBOR_USERNAME }}
-          password: ${{ secrets.HARBOR_PASSWORD }}
-      - name: Configure chunked uploads
+      - name: Configure chunked uploads and login
         run: |
-          # regctl reuses the credentials written by docker login (~/.docker/config.json);
-          # here we only attach the blob-chunk config. --skip-check avoids an auth ping.
+          # Harbor is fronted by a Cloudflare tunnel (100 MB body cap) that blocks
+          # `docker login` (403) but allows regctl, the infra-intended chunked client.
+          # --skip-check skips regctl's anonymous connectivity ping (which a
+          # private registry answers with 401); auth happens during the push.
           regctl registry set --skip-check --blob-chunk "${BLOB_CHUNK}" --blob-max "${BLOB_CHUNK}" "${HARBOR_REGISTRY}"
+          printf '%s' "${HARBOR_PASSWORD}" | \
+            regctl registry login "${HARBOR_REGISTRY}" -u "${HARBOR_USERNAME}" --pass-stdin --skip-check
         env:
           HARBOR_REGISTRY: ${{ secrets.HARBOR_REGISTRY }}
+          HARBOR_USERNAME: ${{ secrets.HARBOR_USERNAME }}
+          HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
       - name: Push image (chunked)
         id: push
         run: |
