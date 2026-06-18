@@ -81,13 +81,18 @@ jobs:
           vnet: ${{ secrets.CF_WARP_VNET }}
           configure_docker_dns: true
       - name: Pin internal Harbor host
-        # WARP's DNS fallback is flaky for the internal zone (SERVFAIL), but the
-        # IP is routed over WARP (10.200.0.0/16). Resolve it statically via
-        # /etc/hosts so the daemon reaches it by the real hostname (TLS SNI intact).
+        # Optional fallback: only used if HARBOR_INTERNAL_IP is set. With the
+        # resolver ACL fixed (WARP CGNAT allowed) DNS resolves on its own, so
+        # leave the secret empty to rely on DNS; set it to bypass DNS entirely.
         env:
           HARBOR_HOST: ${{ secrets.HARBOR_INTERNAL_REGISTRY }}
           HARBOR_IP: ${{ secrets.HARBOR_INTERNAL_IP }}
-        run: echo "${HARBOR_IP} ${HARBOR_HOST}" | sudo tee -a /etc/hosts
+        run: |
+          if [ -n "${HARBOR_IP}" ]; then
+            echo "${HARBOR_IP} ${HARBOR_HOST}" | sudo tee -a /etc/hosts
+          else
+            echo "HARBOR_INTERNAL_IP not set; relying on WARP DNS"
+          fi
       - name: Debug internal connectivity
         # Temporary: pinpoints whether the internal Harbor host fails on DNS or routing over WARP.
         continue-on-error: true
