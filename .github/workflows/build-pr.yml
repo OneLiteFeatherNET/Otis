@@ -1,38 +1,11 @@
 name: Build PR
 on: [pull_request]
+
 jobs:
-  build_pr:
-    if: github.repository_owner == 'OneLiteFeatherNET'
-    name: Build Pull Request Branch
-    runs-on: ${{ matrix.os }}
-    env:
-      ONELITEFEATHER_MAVEN_USERNAME: ${{ secrets.ONELITEFEATHER_MAVEN_USERNAME }}
-      ONELITEFEATHER_MAVEN_PASSWORD: ${{ secrets.ONELITEFEATHER_MAVEN_PASSWORD }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v6
-      - name: Setup Java
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: 25
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
-      - name: Build on ${{ matrix.os }}
-        run: ./gradlew clean build test
-#      - name: Generate JaCoCo Coverage Report
-#        if: matrix.os == 'ubuntu-latest'
-#        run: ./gradlew jacocoTestReport
-#      - name: Jacoco Report to PR
-#        id: jacoco
-#        uses: madrapps/jacoco-report@v1.7.2
-#        with:
-#          paths: ${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
-#          token: ${{ secrets.GITHUB_TOKEN }}
-#          min-coverage-overall: 40
-#          min-coverage-changed-files: 60
-#          title: Code Coverage
-#          update-comment: true
+  build:
+    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-build-pr.yml@v2.1.0
+    # Match the runtime LTS JDK (Temurin 25.0.3) used by the publish pipeline.
+    with:
+      java-version: "25.0.3"
+      java-distribution: "temurin"
+    secrets: inherit
