@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.2](https://github.com/OneLiteFeatherNET/Otis/compare/v1.13.1...v1.13.2) (2026-06-18)
+
+
+### Bug Fixes
+
+* **ci:** authenticate docker push via docker login ([f022e9a](https://github.com/OneLiteFeatherNET/Otis/commit/f022e9a9486ca4347c230f80e114ad83338f87ec))
+
 ## [1.13.1](https://github.com/OneLiteFeatherNET/Otis/compare/v1.13.0...v1.13.1) (2026-06-18)
 
 
