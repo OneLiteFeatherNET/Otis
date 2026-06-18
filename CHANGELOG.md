@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.13.3](https://github.com/OneLiteFeatherNET/Otis/compare/v1.13.2...v1.13.3) (2026-06-18)
+
+
+### Bug Fixes
+
+* **ci:** use regctl login --skip-check and add manual docker dispatch ([df67534](https://github.com/OneLiteFeatherNET/Otis/commit/df67534de04c9ccf6830f6148941710b7fc7284b))
+
+
+### Performance Improvements
+
+* **ci:** larger docker blob chunks (90MB) and concurrent layer uploads ([b656392](https://github.com/OneLiteFeatherNET/Otis/commit/b65639286046d7f41c3f010d2e933d932a6c2d42))
+
 ## [1.13.2](https://github.com/OneLiteFeatherNET/Otis/compare/v1.13.1...v1.13.2) (2026-06-18)
 
 
