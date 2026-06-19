@@ -49,10 +49,12 @@ jobs:
        github.event_name == 'workflow_dispatch')
     env:
       VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.docker_version || needs.release-please.outputs.version }}
-      # Internal Harbor endpoint reached over the WARP private network — NOT the
-      # public Cloudflare tunnel host, so there is no 100 MB body cap and no need
-      # to chunk uploads. The image is pushed with a plain buildx push.
-      IMAGE: ${{ secrets.HARBOR_INTERNAL_REGISTRY }}/otis/otis
+      # Public Cloudflare tunnel host (100 MB request body cap). Pushed with
+      # regctl, which chunks large blobs below the cap; concurrency uploads
+      # multiple layers in parallel (chunks within one layer stay sequential).
+      IMAGE: ${{ secrets.HARBOR_REGISTRY }}/otis/otis
+      BLOB_CHUNK: "90000000"   # ~90 MB, safely under the 100 MB cap
+      REQ_CONCURRENT: "4"      # parallel layer uploads
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -69,43 +71,6 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
       - name: Build Docker Artifacts
         run: ./gradlew jar optimizedBuildLayers optimizedDockerfile -Pversion=${VERSION}
-      - name: Connect Cloudflare WARP
-        # Enrolls the runner into Zero Trust as a service so Harbor is reachable
-        # via the tunnel's private network route instead of the public HTTP proxy.
-        uses: Boostport/setup-cloudflare-warp@v1
-        with:
-          organization: ${{ secrets.CF_WARP_ORG }}
-          auth_client_id: ${{ secrets.CF_WARP_CLIENT_ID }}
-          auth_client_secret: ${{ secrets.CF_WARP_CLIENT_SECRET }}
-          # No explicit vnet: use the default virtual network, like normal WARP
-          # clients that can already reach Harbor (the routes live on the default).
-          configure_docker_dns: true
-      - name: Pin internal Harbor host
-        # Optional fallback: only used if HARBOR_INTERNAL_IP is set. With the
-        # resolver ACL fixed (WARP CGNAT allowed) DNS resolves on its own, so
-        # leave the secret empty to rely on DNS; set it to bypass DNS entirely.
-        env:
-          HARBOR_HOST: ${{ secrets.HARBOR_INTERNAL_REGISTRY }}
-          HARBOR_IP: ${{ secrets.HARBOR_INTERNAL_IP }}
-        run: |
-          if [ -n "${HARBOR_IP}" ]; then
-            echo "${HARBOR_IP} ${HARBOR_HOST}" | sudo tee -a /etc/hosts
-          else
-            echo "HARBOR_INTERNAL_IP not set; relying on WARP DNS"
-          fi
-      - name: Debug internal connectivity
-        # Temporary: pinpoints whether the internal Harbor host fails on DNS or routing over WARP.
-        continue-on-error: true
-        env:
-          HOST: ${{ secrets.HARBOR_INTERNAL_REGISTRY }}
-        run: |
-          echo "--- warp status ---"; warp-cli --accept-tos status || true
-          echo "--- warp settings (split tunnel / routes) ---"; warp-cli --accept-tos settings 2>/dev/null | head -40 || true
-          echo "--- DNS resolve ${HOST} (system) ---"; getent hosts "${HOST}" || nslookup "${HOST}" || true
-          echo "--- DNS resolve via WARP 172.17.0.1 ---"; nslookup "${HOST}" 172.17.0.1 || true
-          echo "--- TCP 443 reachability ---"; timeout 10 bash -c "cat < /dev/null > /dev/tcp/${HOST}/443" && echo "TCP 443 OPEN" || echo "TCP 443 FAILED"
-          echo "--- curl https (TLS verify) ---"; curl -sv --max-time 15 "https://${HOST}/v2/" 2>&1 | head -25 || true
-          echo "--- curl https -k (ignore TLS, isolate routing) ---"; curl -skv --max-time 15 "https://${HOST}/v2/" 2>&1 | head -25 || true
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v6
@@ -119,22 +84,49 @@ jobs:
             type=sha
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-      - name: Log in to internal Harbor
-        uses: docker/login-action@v4
-        with:
-          registry: ${{ secrets.HARBOR_INTERNAL_REGISTRY }}
-          username: ${{ secrets.HARBOR_USERNAME }}
-          password: ${{ secrets.HARBOR_PASSWORD }}
-      - name: Build and push
-        id: build
+      - name: Build image to OCI archive
         uses: docker/build-push-action@v7
         with:
           context: ./backend/build/docker/optimized
-          push: true
+          push: false
           provenance: false
           sbom: false
-          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ env.IMAGE }}:${{ env.VERSION }}
+          outputs: type=oci,dest=${{ runner.temp }}/image.tar
+      - name: Install regctl
+        run: |
+          curl -fsSL https://github.com/regclient/regclient/releases/latest/download/regctl-linux-amd64 \
+            -o "${RUNNER_TEMP}/regctl"
+          chmod +x "${RUNNER_TEMP}/regctl"
+          echo "${RUNNER_TEMP}" >> "$GITHUB_PATH"
+      - name: Configure chunked uploads and login
+        run: |
+          # Harbor is fronted by a Cloudflare tunnel (100 MB body cap) that blocks
+          # docker login (403) but allows regctl. --skip-check skips the anonymous
+          # connectivity ping (a private registry answers 401); auth happens on push.
+          regctl registry set --skip-check --blob-chunk "${BLOB_CHUNK}" --blob-max "${BLOB_CHUNK}" --req-concurrent "${REQ_CONCURRENT}" "${HARBOR_REGISTRY}"
+          printf '%s' "${HARBOR_PASSWORD}" | \
+            regctl registry login "${HARBOR_REGISTRY}" -u "${HARBOR_USERNAME}" --pass-stdin --skip-check
+        env:
+          HARBOR_REGISTRY: ${{ secrets.HARBOR_REGISTRY }}
+          HARBOR_USERNAME: ${{ secrets.HARBOR_USERNAME }}
+          HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
+      - name: Push image (chunked)
+        id: push
+        run: |
+          # Push the primary tag with chunked blob uploads, then add the remaining
+          # tags via in-registry copy (cross-repo blob mount = tiny requests).
+          regctl image import "${IMAGE}:${VERSION}" "${RUNNER_TEMP}/image.tar"
+          while IFS= read -r tag; do
+            [ -z "$tag" ] && continue
+            [ "$tag" = "${IMAGE}:${VERSION}" ] && continue
+            regctl image copy "${IMAGE}:${VERSION}" "$tag"
+          done <<< "${TAGS}"
+          DIGEST="$(regctl image digest "${IMAGE}:${VERSION}")"
+          echo "digest=${DIGEST}" >> "$GITHUB_OUTPUT"
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
       - name: Install Cosign
         uses: sigstore/cosign-installer@v4.1.2
       - name: Sign image with a key
@@ -144,4 +136,4 @@ jobs:
         env:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-          DIGEST: ${{ steps.build.outputs.digest }}
+          DIGEST: ${{ steps.push.outputs.digest }}
