@@ -21,8 +21,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Serdeable
-@Entity
-@Table(name = "otis_player", indexes = {
+@Entity()
+@Table(indexes = {
         @Index(name = "idx_player_uuid", columnList = "playerUuid"),
         @Index(name = "idx_player_name", columnList = "playerName")
 })
