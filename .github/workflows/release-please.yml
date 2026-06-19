@@ -40,7 +40,6 @@ jobs:
 
   docker:
     name: Build Docker Artifacts
-    runs-on: ubuntu-latest
     needs: release-please
     permissions:
       contents: read
@@ -50,92 +49,13 @@ jobs:
       always() &&
       ((github.event_name == 'push' && needs.release-please.outputs.release_created == 'true') ||
        github.event_name == 'workflow_dispatch')
-    env:
-      VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.docker_version || needs.release-please.outputs.version }}
-      # Public Cloudflare tunnel host (100 MB request body cap). Pushed with
-      # regctl, which chunks large blobs below the cap; concurrency uploads
-      # multiple layers in parallel (chunks within one layer stay sequential).
-      IMAGE: ${{ secrets.HARBOR_REGISTRY }}/otis/otis
-      BLOB_CHUNK: "90000000"   # ~90 MB, safely under the 100 MB cap
-      REQ_CONCURRENT: "4"      # parallel layer uploads
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - name: Validate Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@v6
-      - name: Setup Java
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: 25
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
-      - name: Build Docker Artifacts
-        run: ./gradlew jar optimizedBuildLayers optimizedDockerfile -Pversion=${VERSION}
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v6
-        with:
-          images: |
-            ${{ env.IMAGE }}
-          tags: |
-            type=semver,pattern={{version}},value=${{ env.VERSION }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ env.VERSION }}
-            type=semver,pattern={{major}},value=${{ env.VERSION }}
-            type=sha
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-      - name: Build image to OCI archive
-        uses: docker/build-push-action@v7
-        with:
-          context: ./backend/build/docker/optimized
-          push: false
-          provenance: false
-          sbom: false
-          labels: ${{ steps.meta.outputs.labels }}
-          tags: ${{ env.IMAGE }}:${{ env.VERSION }}
-          outputs: type=oci,dest=${{ runner.temp }}/image.tar
-      - name: Install regctl
-        run: |
-          curl -fsSL https://github.com/regclient/regclient/releases/latest/download/regctl-linux-amd64 \
-            -o "${RUNNER_TEMP}/regctl"
-          chmod +x "${RUNNER_TEMP}/regctl"
-          echo "${RUNNER_TEMP}" >> "$GITHUB_PATH"
-      - name: Configure chunked uploads and login
-        run: |
-          # Harbor is fronted by a Cloudflare tunnel (100 MB body cap) that blocks
-          # docker login (403) but allows regctl. --skip-check skips the anonymous
-          # connectivity ping (a private registry answers 401); auth happens on push.
-          regctl registry set --skip-check --blob-chunk "${BLOB_CHUNK}" --blob-max "${BLOB_CHUNK}" --req-concurrent "${REQ_CONCURRENT}" "${HARBOR_REGISTRY}"
-          printf '%s' "${HARBOR_PASSWORD}" | \
-            regctl registry login "${HARBOR_REGISTRY}" -u "${HARBOR_USERNAME}" --pass-stdin --skip-check
-        env:
-          HARBOR_REGISTRY: ${{ secrets.HARBOR_REGISTRY }}
-          HARBOR_USERNAME: ${{ secrets.HARBOR_USERNAME }}
-          HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
-      - name: Push image (chunked)
-        id: push
-        run: |
-          # Push the primary tag with chunked blob uploads, then add the remaining
-          # tags via in-registry copy (cross-repo blob mount = tiny requests).
-          regctl image import "${IMAGE}:${VERSION}" "${RUNNER_TEMP}/image.tar"
-          while IFS= read -r tag; do
-            [ -z "$tag" ] && continue
-            [ "$tag" = "${IMAGE}:${VERSION}" ] && continue
-            regctl image copy "${IMAGE}:${VERSION}" "$tag"
-          done <<< "${TAGS}"
-          DIGEST="$(regctl image digest "${IMAGE}:${VERSION}")"
-          echo "digest=${DIGEST}" >> "$GITHUB_OUTPUT"
-        env:
-          TAGS: ${{ steps.meta.outputs.tags }}
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v4.1.2
-      - name: Sign image (keyless)
-        run: |
-          # Keyless signing with the GitHub Actions OIDC identity (no key/password).
-          # All tags share one manifest digest, so a single signature covers them all.
-          cosign sign --yes --registry-username='${{ secrets.HARBOR_USERNAME }}' --registry-password='${{ secrets.HARBOR_PASSWORD }}' "${IMAGE}@${DIGEST}"
-        env:
-          DIGEST: ${{ steps.push.outputs.digest }}
+    uses: OneLiteFeatherNET/workflows/.github/workflows/docker-publish.yml@v2.2.0
+    with:
+      image-name: "otis/otis"
+      version: ${{ github.event_name == 'workflow_dispatch' && inputs.docker_version || needs.release-please.outputs.version }}
+      setup-java: true
+      build-command: "./gradlew jar optimizedBuildLayers optimizedDockerfile -Pversion=$VERSION"
+      context: "./backend/build/docker/optimized"
+      blob-chunk: "90000000"   # ~90 MB, under the 100 MB Cloudflare cap
+      req-concurrent: "4"
+    secrets: inherit
