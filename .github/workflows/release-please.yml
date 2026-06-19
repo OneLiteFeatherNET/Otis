@@ -51,7 +51,7 @@ jobs:
        github.event_name == 'workflow_dispatch')
     uses: OneLiteFeatherNET/workflows/.github/workflows/docker-publish.yml@v2.2.0
     with:
-      image-name: "otis/otis"
+      image-name: "onelitefeather/otis"
       version: ${{ github.event_name == 'workflow_dispatch' && inputs.docker_version || needs.release-please.outputs.version }}
       setup-java: true
       build-command: "./gradlew jar optimizedBuildLayers optimizedDockerfile -Pversion=$VERSION"
