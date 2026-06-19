@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.4](https://github.com/OneLiteFeatherNET/Otis/compare/v1.13.3...v1.13.4) (2026-06-19)
+
+
+### Bug Fixes
+
+* **build:** trim project version metadata from build script ([038296d](https://github.com/OneLiteFeatherNET/Otis/commit/038296d535ad152cf20c990714a671109d576207))
+
 ## [1.13.3](https://github.com/OneLiteFeatherNET/Otis/compare/v1.13.2...v1.13.3) (2026-06-18)
 
 
