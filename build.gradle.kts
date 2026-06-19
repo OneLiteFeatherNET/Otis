@@ -1,3 +1,7 @@
+allprojects {
+    version = (version as String).substringBefore('#').trim()
+}
+
 subprojects {
     apply(plugin = "java")
     apply(plugin = "jacoco")
