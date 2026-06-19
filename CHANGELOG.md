@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.5](https://github.com/OneLiteFeatherNET/Otis/compare/v1.13.4...v1.13.5) (2026-06-19)
+
+
+### Bug Fixes
+
+* **entity:** remove redundant `name` attribute from `@Table` annotation in `OtisPlayer` ([2267e0a](https://github.com/OneLiteFeatherNET/Otis/commit/2267e0aa4d9d12ba03cd5681ea339913edd4e3a3))
+
 ## [1.13.4](https://github.com/OneLiteFeatherNET/Otis/compare/v1.13.3...v1.13.4) (2026-06-19)
 
 
