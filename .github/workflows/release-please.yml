@@ -77,8 +77,8 @@ jobs:
           organization: ${{ secrets.CF_WARP_ORG }}
           auth_client_id: ${{ secrets.CF_WARP_CLIENT_ID }}
           auth_client_secret: ${{ secrets.CF_WARP_CLIENT_SECRET }}
-          # Tunnel virtual network that carries Harbor's private network route.
-          vnet: ${{ secrets.CF_WARP_VNET }}
+          # No explicit vnet: use the default virtual network, like normal WARP
+          # clients that can already reach Harbor (the routes live on the default).
           configure_docker_dns: true
       - name: Pin internal Harbor host
         # Optional fallback: only used if HARBOR_INTERNAL_IP is set. With the
