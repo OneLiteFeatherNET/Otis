@@ -3,7 +3,7 @@ on: [pull_request]
 
 jobs:
   build:
-    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-build-pr.yml@v2.1.0
+    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-build-pr.yml@v2.2.0
     # Match the runtime LTS JDK (Temurin 25.0.3) used by the publish pipeline.
     with:
       java-version: "25.0.3"
