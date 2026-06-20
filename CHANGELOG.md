@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.1](https://github.com/OneLiteFeatherNET/Otis/compare/v1.14.0...v1.14.1) (2026-06-20)
+
+
+### Bug Fixes
+
+* **logging:** improve JSON log structure for better field mapping ([2ef4586](https://github.com/OneLiteFeatherNET/Otis/commit/2ef4586acc792907b97920ba2bed5c7f4e256cbb))
+
 ## [1.14.0](https://github.com/OneLiteFeatherNET/Otis/compare/v1.13.5...v1.14.0) (2026-06-20)
 
 
