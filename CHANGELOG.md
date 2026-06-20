@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.0](https://github.com/OneLiteFeatherNET/Otis/compare/v1.13.5...v1.14.0) (2026-06-20)
+
+
+### Features
+
+* OpenTelemetry tracing + JSON logging for Grafana Loki ([#127](https://github.com/OneLiteFeatherNET/Otis/issues/127)) ([78b6b35](https://github.com/OneLiteFeatherNET/Otis/commit/78b6b35ea2680e8d1ca5533012c678f2959ef009))
+
 ## [1.13.5](https://github.com/OneLiteFeatherNET/Otis/compare/v1.13.4...v1.13.5) (2026-06-19)
 
 
