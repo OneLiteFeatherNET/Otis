@@ -19,6 +19,10 @@ dependencyResolutionManagement {
             version("jackson", "2.22.0")
             version("jakarta-annotation", "3.0.0")
 
+            version("logstash-logback-encoder", "8.1")
+            version("opentelemetry-instrumentation-alpha", "2.20.1-alpha")
+            version("janino", "3.1.12")
+
             library(
                 "jetbrains.annotations",
                 "org.jetbrains",
@@ -38,6 +42,13 @@ dependencyResolutionManagement {
 
             library("jackson-databind-nullable", "org.openapitools", "jackson-databind-nullable").version("0.2.10")
             library("jakarta-annotation-api", "jakarta.annotation", "jakarta.annotation-api").versionRef("jakarta-annotation")
+
+            // Observability — JSON logging + OpenTelemetry (see backend/build.gradle.kts).
+            // Version managed by the Micronaut platform BOM (opentelemetry-bom).
+            library("opentelemetry-exporter-otlp", "io.opentelemetry", "opentelemetry-exporter-otlp").withoutVersion()
+            library("logstash-logback-encoder", "net.logstash.logback", "logstash-logback-encoder").versionRef("logstash-logback-encoder")
+            library("opentelemetry-logback-mdc", "io.opentelemetry.instrumentation", "opentelemetry-logback-mdc-1.0").versionRef("opentelemetry-instrumentation-alpha")
+            library("janino", "org.codehaus.janino", "janino").versionRef("janino")
 
 
             plugin("micronaut.application", "io.micronaut.application").versionRef("micronaut")
