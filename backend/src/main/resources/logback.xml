@@ -1,27 +1,28 @@
 <configuration>
-    <!--
-      Logging is human-readable by default (local dev) and switches to structured
-      JSON on stdout when LOG_JSON=true (set this in the Docker/prod container so
-      Grafana Loki can index the fields). The OpenTelemetry MDC appender injects
-      trace_id/span_id/trace_flags into the MDC for log <-> trace correlation.
-    -->
     <property name="LOG_JSON" value="${LOG_JSON:-false}"/>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <if condition='"true".equalsIgnoreCase(property("LOG_JSON"))'>
-            <then>
+    <if condition='"true".equalsIgnoreCase(property("LOG_JSON"))'>
+        <then>
+            <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
                 <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-                    <!-- service label so Loki/Tempo can group by app -->
-                    <customFields>{"service":"${OTEL_SERVICE_NAME:-otis}"}</customFields>
+                    <fieldNames>
+                        <timestamp>timestamp</timestamp>
+                        <message>message</message>
+                        <logger>logger</logger>
+                        <thread>thread</thread>
+                        <level>level</level>
+                    </fieldNames>
                 </encoder>
-            </then>
-            <else>
+            </appender>
+        </then>
+        <else>
+            <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
                 <encoder>
                     <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
                 </encoder>
-            </else>
-        </if>
-    </appender>
+            </appender>
+        </else>
+    </if>
 
     <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.mdc.v1_0.OpenTelemetryAppender">
         <appender-ref ref="STDOUT"/>
