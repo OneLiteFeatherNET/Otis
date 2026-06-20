@@ -21,6 +21,29 @@ jpa:
           auto: update
         show_sql: false
 
+# OpenTelemetry — tracing is disabled unless OTEL_TRACES_EXPORTER=otlp is set
+# (do this in the Docker/prod container). Metrics stay on Prometheus/Micrometer.
+otel:
+  service:
+    name: ${OTEL_SERVICE_NAME:otis}
+  traces:
+    exporter: ${OTEL_TRACES_EXPORTER:none}
+  metrics:
+    exporter: none
+  logs:
+    exporter: none
+  exporter:
+    otlp:
+      protocol: grpc
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:`http://localhost:4317`}
+  exclusions:
+    - /health
+    - /health/.*
+    - /prometheus
+    - /swagger
+    - /swagger/.*
+    - /swagger-ui/.*
+
 # OpenAPI
 router:
   static-resources:
