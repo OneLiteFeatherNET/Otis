@@ -32,30 +32,46 @@ jobs:
   publish:
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'
-    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-publish.yml@v2.2.0
+    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-publish.yml@v2.3.0
     with:
       java-version: "25.0.3"
       java-distribution: "temurin"
     secrets: inherit
 
-  docker:
-    name: Build Docker Artifacts
+  # Gradle produces the Micronaut optimized Docker context and uploads it as an
+  # artifact for the (toolchain-agnostic) docker-publish job to consume.
+  build-context:
+    name: Build Docker context
     needs: release-please
-    permissions:
-      contents: read
-      id-token: write   # keyless cosign signing via GitHub OIDC
     # Runs on a real release, or on a manual dispatch to (re)publish a given version.
     if: |
       always() &&
       ((github.event_name == 'push' && needs.release-please.outputs.release_created == 'true') ||
        github.event_name == 'workflow_dispatch')
-    uses: OneLiteFeatherNET/workflows/.github/workflows/docker-publish.yml@v2.2.0
+    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-docker-context.yml@v2.3.0
+    with:
+      version: ${{ github.event_name == 'workflow_dispatch' && inputs.docker_version || needs.release-please.outputs.version }}
+      gradle-command: "./gradlew jar optimizedBuildLayers optimizedDockerfile -Pversion=$VERSION"
+      context-path: "backend/build/docker/optimized"
+      artifact-name: "docker-context-release"
+    secrets: inherit
+
+  docker:
+    name: Build Docker Artifacts
+    needs: [release-please, build-context]
+    permissions:
+      contents: read
+      id-token: write   # keyless cosign signing via GitHub OIDC
+    if: |
+      always() && needs.build-context.result == 'success' &&
+      ((github.event_name == 'push' && needs.release-please.outputs.release_created == 'true') ||
+       github.event_name == 'workflow_dispatch')
+    uses: OneLiteFeatherNET/workflows/.github/workflows/docker-publish.yml@v2.3.0
     with:
       image-name: "onelitefeather/otis"
       version: ${{ github.event_name == 'workflow_dispatch' && inputs.docker_version || needs.release-please.outputs.version }}
-      setup-java: true
-      build-command: "./gradlew jar optimizedBuildLayers optimizedDockerfile -Pversion=$VERSION"
-      context: "./backend/build/docker/optimized"
+      context: "backend/build/docker/optimized"
+      artifact-name: "docker-context-release"
       blob-chunk: "90000000"   # ~90 MB, under the 100 MB Cloudflare cap
       req-concurrent: "4"
     secrets: inherit
