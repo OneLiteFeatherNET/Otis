@@ -7,9 +7,13 @@
   "packages": {
     ".": {
       "package-name": "otis",
+      "release-type": "java",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
-        "gradle.properties"
+        {
+          "type": "generic",
+          "path": "gradle.properties"
+        }
       ]
     }
   }
