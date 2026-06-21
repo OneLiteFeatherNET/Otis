@@ -29,9 +29,45 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
+  # Resolves the current project version from gradle.properties for non-release
+  # pushes, so the snapshot jobs below know whether (and at which version) to run.
+  version:
+    needs: release-please
+    if: github.event_name == 'push' && needs.release-please.outputs.release_created != 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+      is_snapshot: ${{ steps.read.outputs.is_snapshot }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Read version
+        id: read
+        shell: bash
+        run: |
+          VERSION="$(grep -E '^version' gradle.properties | head -n1 | cut -d= -f2 | cut -d'#' -f1 | xargs)"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          # Mirror the snapshot routing in the publish build scripts (SNAPSHOT/BETA/ALPHA).
+          case "$VERSION" in
+            *SNAPSHOT*|*BETA*|*ALPHA*) IS_SNAPSHOT=true ;;
+            *)                          IS_SNAPSHOT=false ;;
+          esac
+          echo "is_snapshot=$IS_SNAPSHOT" >> "$GITHUB_OUTPUT"
+          echo "Resolved version '$VERSION' (snapshot=$IS_SNAPSHOT)"
+
+  # ---- Maven publish ----
   publish:
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'
+    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-publish.yml@v2.3.0
+    with:
+      java-version: "25.0.3"
+      java-distribution: "temurin"
+    secrets: inherit
+
+  publish-snapshot:
+    needs: [release-please, version]
+    if: needs.version.outputs.is_snapshot == 'true'
     uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-publish.yml@v2.3.0
     with:
       java-version: "25.0.3"
@@ -72,6 +108,36 @@ jobs:
       version: ${{ github.event_name == 'workflow_dispatch' && inputs.docker_version || needs.release-please.outputs.version }}
       context: "backend/build/docker/optimized"
       artifact-name: "docker-context-release"
+      blob-chunk: "90000000"   # ~90 MB, under the 100 MB Cloudflare cap
+      req-concurrent: "4"
+    secrets: inherit
+
+  # ---- Snapshot Docker image (on every non-release push to main) ----
+  build-context-snapshot:
+    name: Build Docker context (snapshot)
+    needs: [release-please, version]
+    if: needs.version.outputs.is_snapshot == 'true'
+    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-docker-context.yml@v2.3.0
+    with:
+      version: ${{ needs.version.outputs.version }}
+      gradle-command: "./gradlew jar optimizedBuildLayers optimizedDockerfile -Pversion=$VERSION"
+      context-path: "backend/build/docker/optimized"
+      artifact-name: "docker-context-snapshot"
+    secrets: inherit
+
+  docker-snapshot:
+    name: Build Docker Artifacts (snapshot)
+    needs: [version, build-context-snapshot]
+    permissions:
+      contents: read
+      id-token: write   # keyless cosign signing via GitHub OIDC
+    if: needs.version.outputs.is_snapshot == 'true'
+    uses: OneLiteFeatherNET/workflows/.github/workflows/docker-publish.yml@v2.3.0
+    with:
+      image-name: "onelitefeather/otis"
+      version: ${{ needs.version.outputs.version }}
+      context: "backend/build/docker/optimized"
+      artifact-name: "docker-context-snapshot"
       blob-chunk: "90000000"   # ~90 MB, under the 100 MB Cloudflare cap
       req-concurrent: "4"
     secrets: inherit
