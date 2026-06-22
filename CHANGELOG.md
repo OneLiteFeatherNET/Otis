@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.16.0](https://github.com/OneLiteFeatherNET/Otis/compare/v1.15.0...v1.16.0) (2026-06-22)
+
+
+### Features
+
+* **discovery:** add Micronaut Kubernetes service discovery client ([569dacc](https://github.com/OneLiteFeatherNET/Otis/commit/569dacc6f028ab0f5d5d9e339eac3ca607d5c9c9))
+* enable Kubernetes service discovery client ([#142](https://github.com/OneLiteFeatherNET/Otis/issues/142)) ([569dacc](https://github.com/OneLiteFeatherNET/Otis/commit/569dacc6f028ab0f5d5d9e339eac3ca607d5c9c9))
+
 ## [1.15.0](https://github.com/OneLiteFeatherNET/Otis/compare/v1.14.1...v1.15.0) (2026-06-22)
 
 
