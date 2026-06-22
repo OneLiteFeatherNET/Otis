@@ -40,7 +40,7 @@ jobs:
       is_snapshot: ${{ steps.read.outputs.is_snapshot }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Read version
         id: read
         shell: bash
