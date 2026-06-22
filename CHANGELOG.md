@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.15.0](https://github.com/OneLiteFeatherNET/Otis/compare/v1.14.1...v1.15.0) (2026-06-22)
+
+
+### Features
+
+* **ci:** switch release-please to Maven (java) flow with snapshots ([#132](https://github.com/OneLiteFeatherNET/Otis/issues/132)) ([cb4fb45](https://github.com/OneLiteFeatherNET/Otis/commit/cb4fb452b2c2ba1e024dbce078d4dba49f904c41))
+* enable /health and /prometheus management endpoints ([#139](https://github.com/OneLiteFeatherNET/Otis/issues/139)) ([cccddf5](https://github.com/OneLiteFeatherNET/Otis/commit/cccddf5343f21d989b8b02128a3e61c934a29442))
+
+
+### Bug Fixes
+
+* **deps:** update logstash-logback-encoder to v9 ([#140](https://github.com/OneLiteFeatherNET/Otis/issues/140)) ([7eba836](https://github.com/OneLiteFeatherNET/Otis/commit/7eba8365afccc9286de61626c57b7b7377c9ec36))
+
 ## [1.14.1](https://github.com/OneLiteFeatherNET/Otis/compare/v1.14.0...v1.14.1) (2026-06-20)
 
 
