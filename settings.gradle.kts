@@ -11,7 +11,7 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            version("micronaut", "5.0.0")
+            version("micronaut", "5.0.1")
             version("annotations", "26.1.0")
             version("shadow", "9.4.2")
             version("velocity", "3.4.0")
