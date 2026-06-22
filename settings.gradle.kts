@@ -19,7 +19,7 @@ dependencyResolutionManagement {
             version("jackson", "2.22.0")
             version("jakarta-annotation", "3.0.0")
 
-            version("logstash-logback-encoder", "8.1")
+            version("logstash-logback-encoder", "9.0")
             version("opentelemetry-instrumentation-alpha", "2.20.1-alpha")
             version("janino", "3.1.12")
 
