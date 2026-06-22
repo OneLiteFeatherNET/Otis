@@ -51,6 +51,17 @@ otel:
     - /swagger/.*
     - /swagger-ui/.*
 
+# Management endpoints — /health for liveness/readiness probes,
+# /prometheus for metrics scraping (both non-sensitive for internal scraping).
+endpoints:
+  health:
+    enabled: true
+    sensitive: false
+    details-visible: ANONYMOUS
+  prometheus:
+    enabled: true
+    sensitive: false
+
 # OpenAPI
 router:
   static-resources:
