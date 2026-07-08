@@ -59,7 +59,7 @@ jobs:
   publish:
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'
-    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-publish.yml@v2.3.0
+    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-publish.yml@v2.4.0
     with:
       java-version: "25.0.3"
       java-distribution: "temurin"
@@ -68,7 +68,7 @@ jobs:
   publish-snapshot:
     needs: [release-please, version]
     if: needs.version.outputs.is_snapshot == 'true'
-    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-publish.yml@v2.3.0
+    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-publish.yml@v2.4.0
     with:
       java-version: "25.0.3"
       java-distribution: "temurin"
@@ -84,7 +84,7 @@ jobs:
       always() &&
       ((github.event_name == 'push' && needs.release-please.outputs.release_created == 'true') ||
        github.event_name == 'workflow_dispatch')
-    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-docker-context.yml@v2.3.0
+    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-docker-context.yml@v2.4.0
     with:
       version: ${{ github.event_name == 'workflow_dispatch' && inputs.docker_version || needs.release-please.outputs.version }}
       gradle-command: "./gradlew jar optimizedBuildLayers optimizedDockerfile -Pversion=$VERSION"
@@ -102,7 +102,7 @@ jobs:
       always() && needs.build-context.result == 'success' &&
       ((github.event_name == 'push' && needs.release-please.outputs.release_created == 'true') ||
        github.event_name == 'workflow_dispatch')
-    uses: OneLiteFeatherNET/workflows/.github/workflows/docker-publish.yml@v2.3.0
+    uses: OneLiteFeatherNET/workflows/.github/workflows/docker-publish.yml@v2.4.0
     with:
       image-name: "onelitefeather/otis"
       version: ${{ github.event_name == 'workflow_dispatch' && inputs.docker_version || needs.release-please.outputs.version }}
@@ -117,7 +117,7 @@ jobs:
     name: Build Docker context (snapshot)
     needs: [release-please, version]
     if: needs.version.outputs.is_snapshot == 'true'
-    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-docker-context.yml@v2.3.0
+    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-docker-context.yml@v2.4.0
     with:
       version: ${{ needs.version.outputs.version }}
       gradle-command: "./gradlew jar optimizedBuildLayers optimizedDockerfile -Pversion=$VERSION"
@@ -132,7 +132,7 @@ jobs:
       contents: read
       id-token: write   # keyless cosign signing via GitHub OIDC
     if: needs.version.outputs.is_snapshot == 'true'
-    uses: OneLiteFeatherNET/workflows/.github/workflows/docker-publish.yml@v2.3.0
+    uses: OneLiteFeatherNET/workflows/.github/workflows/docker-publish.yml@v2.4.0
     with:
       image-name: "onelitefeather/otis"
       version: ${{ needs.version.outputs.version }}
