@@ -16,7 +16,7 @@ dependencyResolutionManagement {
             version("shadow", "9.4.3")
             version("velocity", "3.4.0")
 
-            version("jackson", "2.22.0")
+            version("jackson", "2.22.1")
             version("jakarta-annotation", "3.0.0")
 
             version("logstash-logback-encoder", "9.0")
