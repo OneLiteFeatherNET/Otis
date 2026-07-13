@@ -13,7 +13,7 @@ dependencyResolutionManagement {
         create("libs") {
             version("micronaut", "5.0.2")
             version("annotations", "26.1.0")
-            version("shadow", "9.4.3")
+            version("shadow", "9.5.1")
             version("velocity", "3.4.0")
 
             version("jackson", "2.22.1")
