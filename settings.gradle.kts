@@ -14,7 +14,7 @@ dependencyResolutionManagement {
             version("micronaut", "5.0.2")
             version("annotations", "26.1.0")
             version("shadow", "9.6.1")
-            version("velocity", "4.1.0")
+            version("velocity", "4.1.1")
 
             version("jackson", "2.22.2")
             version("jakarta-annotation", "3.0.0")
