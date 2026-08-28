@@ -1,5 +1,5 @@
 allprojects {
-    version = (version as String).substringBefore('#').trim()
+    version = "1.16.1" // x-release-please-version
 }
 
 subprojects {
