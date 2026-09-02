@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.16.2](https://github.com/OneLiteFeatherNET/Otis/compare/v1.16.1...v1.16.2) (2026-09-02)
+
+
+### Bug Fixes
+
+* **deps:** update dependency com.fasterxml.jackson:jackson-bom to v2.22.2 ([#161](https://github.com/OneLiteFeatherNET/Otis/issues/161)) ([f07d419](https://github.com/OneLiteFeatherNET/Otis/commit/f07d41927262ed08db372c98eef3652370760060))
+* **deps:** update dependency com.velocitypowered:velocity-api to v4.1.0 ([#168](https://github.com/OneLiteFeatherNET/Otis/issues/168)) ([e5b3a1f](https://github.com/OneLiteFeatherNET/Otis/commit/e5b3a1f0c376d908beef25a19c3588c4b3d4eee6))
+* **deps:** update dependency com.velocitypowered:velocity-api to v4.1.1 ([#169](https://github.com/OneLiteFeatherNET/Otis/issues/169)) ([761f95e](https://github.com/OneLiteFeatherNET/Otis/commit/761f95e4d469da0f1edf3c059f30879e4ff0b4ed))
+
 ## [1.16.1](https://github.com/OneLiteFeatherNET/Otis/compare/v1.16.0...v1.16.1) (2026-07-26)
 
 
