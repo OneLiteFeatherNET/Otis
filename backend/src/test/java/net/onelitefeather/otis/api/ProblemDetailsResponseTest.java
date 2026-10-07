@@ -72,6 +72,18 @@ class ProblemDetailsResponseTest {
     }
 
     @Test
+    void domainProblemUsesStableTypeUriAndStatus() {
+        spec.when().get("/test-failures/domain")
+                .then()
+                .statusCode(409)
+                .contentType(startsWith(PROBLEM_JSON))
+                .body("type", equalTo("https://otis.onelitefeather.net/problems/sample-conflict"))
+                .body("title", equalTo("Sample conflict"))
+                .body("status", equalTo(409))
+                .body("detail", equalTo("The sample conflicts."));
+    }
+
+    @Test
     void problemHasNoTraceIdWhileTracingIsDisabled() {
         spec.when().get("/does-not-exist")
                 .then()
