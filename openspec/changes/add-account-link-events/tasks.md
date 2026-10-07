@@ -54,7 +54,7 @@ Every agent prompt restates these rules:
 ## 5. Observability and build
 
 - [x] 5.1 (unit, red first) `OpenTelemetryExtension` tests:
-  - `otis.outbox.pending` gauge (name, unit `{event}`, value = pending rows, no attributes)
+  - `otis.outbox.pending` Micrometer gauge on a `SimpleMeterRegistry` (name, description, value = pending rows, no tags)
   - `outbox.relay` span attributes
   - WARN logged once over two consecutive failing runs (captured appender)
 

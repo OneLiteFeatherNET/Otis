@@ -92,7 +92,7 @@ Event publishing SHALL be controlled by `KAFKA_ENABLED`, default `false`. When d
 - **THEN** link changes write outbox rows and the relay publishes them
 
 ### Requirement: Event pipeline is observable
-The system SHALL expose a gauge `otis.outbox.pending` with unit `{event}`, without attributes, holding the number of unpublished events. Publishing SHALL create producer spans that carry the W3C trace context into the message headers. A relay run that fails to publish SHALL be logged once at WARN without event payloads.
+The system SHALL expose a Micrometer gauge `otis.outbox.pending` (exported on `/prometheus`), without tags, holding the number of unpublished events. Publishing SHALL create producer spans that carry the W3C trace context into the message headers. A relay run that fails to publish SHALL be logged once at WARN without event payloads.
 
 #### Scenario: Backlog visible
 - **WHEN** 3 events are stored and not yet published

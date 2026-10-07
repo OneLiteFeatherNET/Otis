@@ -128,7 +128,7 @@ Prod Otis runs 2 replicas. CI has no Docker, so tests cannot start a Kafka broke
 - Spans are not created per row.
 
 **Metric:**
-- `otis.outbox.pending`: observable gauge via the OTel API from the injected `OpenTelemetry`, unit `{event}`, description "Outbox events not yet published to Kafka", no attributes (cardinality 1).
+- `otis.outbox.pending`: Micrometer `Gauge` on the injected `MeterRegistry` (exported on `/prometheus`), no base unit, description "Outbox events not yet published to Kafka", no tags (cardinality 1), registered only when events are enabled.
 - The callback reads a cached count that is updated by each relay run (cheap, non-blocking).
 - It answers "are link events stuck?" and is a candidate for a Grafana alert later.
 
@@ -138,7 +138,7 @@ Prod Otis runs 2 replicas. CI has no Docker, so tests cannot start a Kafka broke
 - DEBUG per run with counts.
 
 **Tests:**
-- `OpenTelemetryExtension`: gauge value equals the pending rows.
+- `SimpleMeterRegistry`: gauge name, description and value equal the pending rows.
 - Relay span attributes.
 - WARN logged once over two consecutive failing runs (captured appender).
 
@@ -165,5 +165,5 @@ Deviations found during implementation:
 - `AccountLinkService.delete` and `putUnverified` now run in a `LinkTransactions` block (delete needs the removed link for the event; both must write the outbox row in the transaction of the change).
 - The relay sets short producer timeouts (`max.block.ms` 5s, `request.timeout.ms` 10s, `delivery.timeout.ms` 15s), so an unreachable broker fails a run quickly. A timed-out send may still arrive later; that is a duplicate with the same event id.
 - The instance id comes from `otis.events.instance-id` (`HOSTNAME`), else a random uuid. Relay interval and initial delay are configurable (`otis.events.relay.interval`, `otis.events.relay.initial-delay`) so tests keep the scheduler idle.
-- `otis.outbox.pending` is an OpenTelemetry gauge as designed. The backend sets `otel.metrics.exporter: none` (metrics go through Micrometer/Prometheus), so the gauge is visible in tests but not exported in production until an OTel metrics exporter is configured. Exposing it through Micrometer as well is a follow-up.
+- `otis.outbox.pending` is a Micrometer gauge, not an OpenTelemetry one: the backend exports metrics through Micrometer to `/prometheus` and sets `otel.metrics.exporter: none`, so an OTel gauge would be invisible in production. The relay span stays on OpenTelemetry.
 - The broker path was verified against throwaway containers (3-broker Kafka 3.9.1 KRaft with `auto.create.topics.enable=false` and `min.insync.replicas=2`, PostgreSQL 17; removed afterwards): Flyway applied V1-V4 on PostgreSQL (`payload` is `jsonb`); at startup the topic `otis.account-links` was created with 3 partitions and replication factor 3; redeem, unverified put and unlink produced three messages with the player uuid as key and a `traceparent` header, all rows were marked published. Against MariaDB the V4 script was not executed (no MariaDB available).
