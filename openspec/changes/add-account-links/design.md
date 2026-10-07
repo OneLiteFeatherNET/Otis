@@ -24,7 +24,7 @@ Constraints that shape this design:
 - Additive schema change, with existing endpoints and the client API untouched.
 
 **Non-Goals:**
-- Service-to-service authentication.
+- Service-to-service authentication (planned follow-up: OneLiteFeather SSO with JWT bearer tokens, see Risks).
 - OAuth flows with providers. The redeeming service authenticates the external user itself, for example a Discord interaction.
 - Storing provider access tokens.
 - Events (`add-account-link-events`) and in-game commands (`add-link-commands`).
@@ -209,7 +209,7 @@ A concurrent redeem can still violate `UNIQUE(provider, external_id)` or `UNIQUE
 
 ## Risks / Trade-offs
 
-- **[No service auth: any internal caller can redeem with an arbitrary externalId]** → Otis stays internal-only (internal gateway hostname). This is documented in the PR, with a follow-up change for service authentication. The code still proves the player side.
+- **[No service auth: any internal caller can redeem with an arbitrary externalId]** → Otis stays internal-only (internal gateway hostname) until the planned follow-up: service authentication via the OneLiteFeather SSO with JWT bearer tokens (OAuth2 client-credentials for services such as the proxy and the Discord bot, validated by Micronaut Security JWT against the IdP's JWKS). To make that follow-up non-breaking, endpoints are grouped by caller role so each group maps to one scope later: game side (`/v1/players/{playerUuid}/link-codes`, `/links` writes - scope e.g. `otis:links:game`), redeeming services (`/v1/link-codes/redeem`, `/v1/links/{provider}/{externalId}` - scope e.g. `otis:links:redeem`); no endpoint mixes both roles, and no request field may later need to move into a token claim. Documented in the PR.
 - **[A leaked DB exposes active code hashes]** → They are only useful for 10 minutes, and codes are single use.
 - **[Rate limit counts per player, not per IP or caller]** → This is sufficient, because codes are only issued for a player authenticated by the proxy.
 - **[Concurrent redeems]** → Unique constraints plus a transaction and rollback (D5), covered by a test.
