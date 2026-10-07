@@ -15,6 +15,8 @@ dependencyResolutionManagement {
             version("annotations", "26.1.0")
             version("shadow", "9.6.1")
             version("velocity", "4.2.0")
+            // Adventure version bundled by velocity-api 4.2.0 (adventure-bom 5.2.0); keep in sync on velocity bumps.
+            version("adventure", "5.2.0")
 
             version("jackson", "2.22.3")
             version("jakarta-annotation", "3.0.0")
@@ -33,6 +35,8 @@ dependencyResolutionManagement {
                 "com.velocitypowered",
                 "velocity-api"
             ).versionRef("velocity")
+
+            library("adventure-key", "net.kyori", "adventure-key").versionRef("adventure")
 
             library("jackson-bom",  "com.fasterxml.jackson", "jackson-bom").versionRef("jackson")
             library("jackson-core",        "com.fasterxml.jackson.core", "jackson-core").withoutVersion()

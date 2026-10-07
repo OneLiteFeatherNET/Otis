@@ -12,6 +12,8 @@ info:
 tags:
 - name: Player
   description: Player management
+- name: Player settings
+  description: Per-player settings identified by Adventure keys
 paths:
   /otis:
     post:
@@ -333,6 +335,214 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ProblemDetail'
+  /v1/players/{playerUuid}/settings:
+    get:
+      tags:
+      - Player settings
+      summary: List the settings of a player
+      description: Returns all settings of the player, or only those of the given namespaces.
+      operationId: listPlayerSettings
+      parameters:
+      - name: playerUuid
+        in: path
+        description: Mojang uuid of the player; the player must be stored in Otis.
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: namespace
+        in: query
+        description: Only return settings of this namespace, e.g. lobby; repeat the parameter for several namespaces.
+        explode: true
+        schema:
+          type: array
+          nullable: true
+          items:
+            type: string
+      responses:
+        '200':
+          description: The settings, possibly an empty list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlayerSettingDTO'
+        '404':
+          description: Player not found (problem type player-not-found)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '400':
+          description: The request is invalid, e.g. the player uuid is malformed
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /v1/players/{playerUuid}/settings/{key}:
+    get:
+      tags:
+      - Player settings
+      summary: Get one setting of a player
+      description: Returns the setting stored under the key.
+      operationId: getPlayerSetting
+      parameters:
+      - name: playerUuid
+        in: path
+        description: Mojang uuid of the player; the player must be stored in Otis.
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: key
+        in: path
+        description: Setting key in Adventure key syntax, namespace:value. Use the namespace olf for generic settings shared by all services and the namespace of your game for game-specific ones. The namespace minecraft is reserved.
+        required: true
+        schema:
+          type: string
+          format: adventure-key
+          example: lobby:player_hider
+      responses:
+        '200':
+          description: The setting
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayerSettingDTO'
+        '404':
+          description: Player or setting not found (problem types player-not-found, setting-not-found)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '400':
+          description: Invalid key (problem types missing-namespace, reserved-namespace, invalid-setting-key)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    put:
+      tags:
+      - Player settings
+      summary: Store a setting of a player
+      description: Creates the setting or replaces its value (last write wins). Putting a value that is semantically equal to the stored one changes nothing and keeps version and updatedAt.
+      operationId: putPlayerSetting
+      parameters:
+      - name: playerUuid
+        in: path
+        description: Mojang uuid of the player; the player must be stored in Otis.
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: key
+        in: path
+        description: Setting key in Adventure key syntax, namespace:value. Use the namespace olf for generic settings shared by all services and the namespace of your game for game-specific ones. The namespace minecraft is reserved.
+        required: true
+        schema:
+          type: string
+          format: adventure-key
+          example: lobby:player_hider
+      requestBody:
+        description: 'The setting value: any JSON value (object, array, string, number, boolean or null), at most 64 KiB serialized.'
+        content:
+          application/json:
+            schema:
+              nullable: true
+        required: true
+      responses:
+        '201':
+          description: The setting was created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayerSettingDTO'
+        '200':
+          description: The setting existed; it was replaced or, for an equal value, left unchanged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayerSettingDTO'
+        '404':
+          description: Player not found (problem type player-not-found)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '400':
+          description: Invalid key or body (problem types missing-namespace, reserved-namespace, invalid-setting-key, invalid-setting-value)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '413':
+          description: The value exceeds 64 KiB (problem type setting-value-too-large)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    delete:
+      tags:
+      - Player settings
+      summary: Delete a setting of a player
+      description: Removes the setting. Deleting a setting that does not exist succeeds as well.
+      operationId: deletePlayerSetting
+      parameters:
+      - name: playerUuid
+        in: path
+        description: Mojang uuid of the player; the player must be stored in Otis.
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: key
+        in: path
+        description: Setting key in Adventure key syntax, namespace:value. Use the namespace olf for generic settings shared by all services and the namespace of your game for game-specific ones. The namespace minecraft is reserved.
+        required: true
+        schema:
+          type: string
+          format: adventure-key
+          example: lobby:player_hider
+      responses:
+        '204':
+          description: The setting does not exist (any more)
+        '404':
+          description: Player not found (problem type player-not-found)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '400':
+          description: Invalid key (problem types missing-namespace, reserved-namespace, invalid-setting-key)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
 components:
   schemas:
     OtisPlayerDTO:
@@ -482,3 +692,28 @@ components:
           description: What is wrong with the input.
           example: Username must be between 3 and 16 characters.
       description: A violated request constraint.
+    PlayerSettingDTO:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Setting key in Adventure key syntax; the namespace separates generic settings (olf) from game-specific ones.
+          format: adventure-key
+          example: lobby:player_hider
+        value:
+          description: 'The setting value: any JSON value (object, array, string, number, boolean or null), stored and returned without interpretation.'
+          nullable: true
+          allOf:
+          - type: object
+        version:
+          minimum: 1
+          type: integer
+          description: Version of the setting, starting at 1 and increased with every change of the value.
+          format: int64
+          example: 1
+        updatedAt:
+          type: string
+          description: Instant of the last change of the value.
+          format: date-time
+          example: 2026-01-01 12:00:00+00:00
+      description: A stored setting as exposed by the API.

@@ -13,6 +13,10 @@ dependencies {
     implementation(libs.jackson.datatype.jsr310)
     implementation(libs.jackson.databind.nullable)
     implementation(libs.jakarta.annotation.api)
+    // The setting key type is part of the public API. Consumers (Velocity, Paper, Minestom) ship
+    // Adventure themselves, so it must not be bundled or forced onto them.
+    compileOnly(libs.adventure.key)
+    testImplementation(libs.adventure.key)
 
     testImplementation(mn.junit.jupiter.api)
     testRuntimeOnly(mn.junit.jupiter.engine)
@@ -47,6 +51,9 @@ openApiGenerate {
             "hideGenerationTimestamp" to "true"
         )
     )
+    // format "adventure-key" in the spec is net.kyori.adventure.key.Key in Java
+    typeMappings.set(mapOf("adventure-key" to "Key"))
+    importMappings.set(mapOf("Key" to "net.kyori.adventure.key.Key"))
     globalProperties.set(
         mapOf(
             "apiTests" to "false",
