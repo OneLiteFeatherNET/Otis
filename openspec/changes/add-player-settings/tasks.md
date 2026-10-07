@@ -36,10 +36,10 @@ Branch `feat/player-settings` from `origin/feat/problem-details` (stacked; PR ba
 
 ## 5. Client
 
-- [ ] 5.1 Save `javap -public` baseline of generated `PlayerApi`, `SearchApi` and models from the branch state before client changes
-- [ ] 5.2 Extend `java-client/specs/otis-api-1.1.0.yml` with the settings paths and schemas (copied from the backend-generated YAML), add `typeMappings`/`importMappings` for `adventure-key` -> `net.kyori.adventure.key.Key`, add `adventure-key` as `compileOnly`; verify the generated settings API uses `Key`
-- [ ] 5.3 (unit, red first) Tests for `AdventureKeyModule` round trip and for the generated request URI of a `Key` path parameter (`lobby:player_hider`); implement and register the module on the generated mapper; verify tests pass
-- [ ] 5.4 Compare `javap -public` with 5.1 (only additions); build `./gradlew :velocity-plugin:shadowJar` without source changes and verify the JAR contains no `net/kyori/adventure/key/` classes (exclude in shadow config if needed)
+- [x] 5.1 Save `javap -public` baseline of generated `PlayerApi`, `SearchApi` and models from the branch state before client changes
+- [x] 5.2 Extend `java-client/specs/otis-api-1.1.0.yml` with the settings paths and schemas (copied from the backend-generated YAML), add `typeMappings`/`importMappings` for `adventure-key` -> `net.kyori.adventure.key.Key`, add `adventure-key` as `compileOnly`; verify the generated settings API uses `Key`
+- [x] 5.3 (unit, red first) Tests for `AdventureKeyModule` round trip and for the generated request URI of a `Key` path parameter (`lobby:player_hider`); implement and register the module on the generated mapper; verify tests pass
+- [x] 5.4 Compare `javap -public` with 5.1 (only additions); build `./gradlew :velocity-plugin:shadowJar` without source changes and verify the JAR contains no `net/kyori/adventure/key/` classes (exclude in shadow config if needed)
 
 ## 6. Full build
 

@@ -152,6 +152,16 @@ class PlayerSettingApiTest {
                 .then().statusCode(200).body("value.rows", equalTo(3));
     }
 
+    @Test
+    void percentEncodedKeyAsSentByTheGeneratedClientAddressesTheSameSetting() {
+        UUID player = storePlayer();
+        put(player, "lobby:shop/layout", "{\"rows\":3}").statusCode(201);
+
+        http().urlEncodingEnabled(false)
+                .when().get("/v1/players/" + player + "/settings/lobby%3Ashop%2Flayout")
+                .then().statusCode(200).body("key", equalTo("lobby:shop/layout")).body("value.rows", equalTo(3));
+    }
+
     // --- Key namespace rules
 
     @Test
