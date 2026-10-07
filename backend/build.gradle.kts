@@ -13,6 +13,7 @@ dependencies {
 
     compileOnly(mn.micronaut.openapi.annotations)
 
+    implementation(mn.micronaut.problem.json)
     implementation(mn.micronaut.http.validation)
     implementation(mn.micronaut.runtime)
     implementation(mn.validation)
