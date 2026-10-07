@@ -84,6 +84,15 @@ class ProblemDetailsResponseTest {
     }
 
     @Test
+    void extensionMembersAreTopLevelMembersNotNestedUnderParameters() {
+        spec.when().get("/test-failures/domain-with-extension")
+                .then()
+                .statusCode(422)
+                .body("key", equalTo("a.b"))
+                .body("$", not(hasKey("parameters")));
+    }
+
+    @Test
     void problemHasNoTraceIdWhileTracingIsDisabled() {
         spec.when().get("/does-not-exist")
                 .then()

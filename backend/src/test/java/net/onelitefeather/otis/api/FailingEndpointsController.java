@@ -4,6 +4,7 @@ import io.micronaut.context.annotation.Requires;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Get;
+import java.util.Map;
 import net.onelitefeather.otis.problem.OtisProblemException;
 
 /**
@@ -23,5 +24,11 @@ class FailingEndpointsController {
     @Get("/domain")
     String domain() {
         throw new OtisProblemException(HttpStatus.CONFLICT, "sample-conflict", "Sample conflict", "The sample conflicts.");
+    }
+
+    @Get("/domain-with-extension")
+    String domainWithExtension() {
+        throw new OtisProblemException(HttpStatus.UNPROCESSABLE_ENTITY, "bad-key", "Bad key", "The key is invalid.",
+                Map.of("key", "a.b"));
     }
 }
