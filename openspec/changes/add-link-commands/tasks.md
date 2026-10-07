@@ -44,7 +44,7 @@ Every agent prompt restates these rules:
   - unavailable, with one WARN via a captured appender
 
   Implement `LinkCommandHandler` and the sealed `GatewayResult`, and verify.
-- [ ] 3.2 (unit, red first) `OtisLinkGateway` tests with a stub `LinksApi`:
+- [x] 3.2 (unit, red first) `OtisLinkGateway` tests with a stub `LinksApi`:
   - success mapping
   - `ApiException` with a problem body mapped to `Problem(slug)` via `ProblemDetails.from`
   - connection error and 5xx mapped to `Unavailable`
