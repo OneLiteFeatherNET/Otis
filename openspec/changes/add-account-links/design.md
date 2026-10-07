@@ -219,3 +219,15 @@ A concurrent redeem can still violate `UNIQUE(provider, external_id)` or `UNIQUE
 
 1. Deploy a release containing V3. Flyway applies `CREATE TABLE account_link` and `CREATE TABLE link_code` on PostgreSQL. No existing table is altered.
 2. Rollback: deploy the previous image. It ignores the new tables. Optional cleanup is `DROP TABLE link_code; DROP TABLE account_link;`; player and settings data are untouched.
+
+## Implementation Notes
+
+Deviations found during implementation (see PR for details):
+- `TransactionOperations<Session>` with the `default` qualifier resolves to `io.micronaut.data.spring.jpa.hibernate.SpringHibernateTransactionOperations`, not to the Micronaut-native manager. It is the unambiguous bean for that type, and `LinkTransactionsRollbackTest` proves that Micronaut Data repository calls join the transaction and roll back with it.
+- `LinkTransactions` is an interface (`HibernateLinkTransactions` in production, `LinkTransactions.direct()` in unit tests with in-memory fakes). Rollback of a conflicting redeem (code stays open) is covered by the REST tests, not by the unit tests.
+- Endpoints are split into two controllers by caller role so a JWT scope can later be applied per group: `PlayerLinkController` (game side: issue codes, list/put/delete links) and `LinkRedemptionController` (redeeming service: redeem, lookup).
+- The generated client API class is `AccountLinksApi` (named after the tag `Account links`, like `PlayerSettingsApi`), not `LinksApi`.
+- The rate-limit window is exclusive at its start (`created_at > now - 60 min`), so the code issued exactly 60 minutes ago no longer counts.
+- Codes are `normalize`d before hashing; input that cannot be a code (wrong length or characters) is answered with the same 410 without a lookup.
+- A hash collision on `link_code.code_hash` (probability about 1e-12 per code) is not retried and would surface as a 500.
+- `code_hash` is `char(64)`; Hibernate `validate` accepts it on H2. MariaDB `boolean` is `tinyint(1)`; the MariaDB script was not executed here (no MariaDB available).

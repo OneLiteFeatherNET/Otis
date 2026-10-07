@@ -74,13 +74,13 @@ Every agent prompt restates these rules:
 
 ## 5. Client
 
-- [ ] 5.1 Save a `javap -public` baseline of all generated client classes from the branch state before the client changes.
-- [ ] 5.2 Extend `java-client/specs/otis-api-1.1.0.yml` with the link paths and schemas from the backend-generated YAML. Verify that `./gradlew :java-client:openApiGenerate` produces a `LinksApi`.
-- [ ] 5.3 (unit, red first) Test that `OtisClients.newApiClient()` deserializes an `AccountLinkDTO` sample and that `ProblemDetails.from` reads a `link-code-invalid` problem. Compare `javap -public` against 5.1: additions only. Build `./gradlew :velocity-plugin:shadowJar` without source changes.
+- [x] 5.1 Save a `javap -public` baseline of all generated client classes from the branch state before the client changes.
+- [x] 5.2 Extend `java-client/specs/otis-api-1.1.0.yml` with the link paths and schemas from the backend-generated YAML. Verify that `./gradlew :java-client:openApiGenerate` produces a `LinksApi`.
+- [x] 5.3 (unit, red first) Test that `OtisClients.newApiClient()` deserializes an `AccountLinkDTO` sample and that `ProblemDetails.from` reads a `link-code-invalid` problem. Compare `javap -public` against 5.1: additions only. Build `./gradlew :velocity-plugin:shadowJar` without source changes.
 
 ## 6. Full build
 
-- [ ] 6.1 Run `./gradlew clean build` and verify it is green. Tick all completed boxes in this file and push.
+- [x] 6.1 Run `./gradlew clean build` and verify it is green. Tick all completed boxes in this file and push.
 
 ## 7. Pull Request
 
