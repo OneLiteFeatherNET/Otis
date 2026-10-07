@@ -23,7 +23,11 @@ The system SHALL store each setting under the Mojang player uuid of a player kno
 - **THEN** reading the setting returns the string `"de_de"`
 
 ### Requirement: Key namespace rules
-The system SHALL reject a key without an explicit namespace with status 400 and problem type `https://otis.onelitefeather.net/problems/missing-namespace`, a key in namespace `minecraft` with status 400 and problem type `https://otis.onelitefeather.net/problems/reserved-namespace`, and a key that is not valid Adventure key syntax with status 400 and problem type `https://otis.onelitefeather.net/problems/invalid-setting-key`. The namespace `olf` SHALL be accepted and is reserved by convention for generic settings shared by all services.
+The system SHALL reject a key without an explicit namespace with status 400 and problem type `https://otis.onelitefeather.net/problems/missing-namespace`, a key in namespace `minecraft` with status 400 and problem type `https://otis.onelitefeather.net/problems/reserved-namespace`, and a key that is not valid Adventure key syntax or has an empty value part (e.g. `lobby:`) with status 400 and problem type `https://otis.onelitefeather.net/problems/invalid-setting-key`. The namespace `olf` SHALL be accepted and is reserved by convention for generic settings shared by all services.
+
+#### Scenario: Empty key value
+- **WHEN** a client puts a setting with key `lobby:`
+- **THEN** the response status is 400 with problem type `https://otis.onelitefeather.net/problems/invalid-setting-key`
 
 #### Scenario: Missing namespace
 - **WHEN** a client puts a setting with key `player_hider`

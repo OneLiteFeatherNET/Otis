@@ -94,3 +94,14 @@ The service receives `OpenTelemetry` (Micronaut provides the bean; tests inject 
 1. Deploy release containing Flyway. On startup against prod: Flyway sees a non-empty schema without history, baselines at V1, applies V2 (`CREATE TABLE player_setting`). No existing table is altered.
 2. If startup fails due to missing privileges: set `FLYWAY_ENABLED=false`, apply `db/migration/postgresql/V2__player_setting.sql` manually, then insert the baseline and V2 rows by re-enabling Flyway once privileges exist.
 3. Rollback: deploy the previous image; it ignores `player_setting` and `flyway_schema_history`. Optional cleanup: `DROP TABLE player_setting` - existing player data is untouched in every step.
+
+## Implementation Notes
+
+Deviations found during implementation (see PR for details):
+- Flyway has no `{vendor}` placeholder (that is Spring Boot); `VendorMigrationLocations` (micronaut-flyway customizer extension point) selects `db/migration/{h2,postgresql,mariadb}` from the JDBC product name.
+- UUID columns are `uuid` on MariaDB 11 (what live Hibernate expects); a local MariaDB older than 10.7 with `binary(16)` columns would not match the V2 FK - use `FLYWAY_ENABLED=false` or recreate the local DB.
+- No `TypeConverter<String, Key>` in the HTTP layer: a conversion failure would collapse into a generic 400 and lose the specific problem types; the controller takes a string and `SettingKeys.parse` runs inside the service span. A Serde for `Key` exists for bodies.
+- No declarative `@Transactional` on the upsert (two `@Primary` transaction operations beans from `micronaut-data-spring-jpa`); each repository call is atomic and the unique-violation retry runs outside a transaction. Concurrent updates of the same setting are last-write-wins and may skip a `version` increment - acceptable, `version` is informational until `If-Match` is added.
+- DTO value is a plain Java tree (`Object`) because Micronaut Serde cannot serialize Jackson `JsonNode`; a dedicated strict `ObjectMapper` (`setting-values`) parses values.
+- Client: `OtisClients.newApiClient()` / `configure(ApiClient)` registers the `AdventureKeyModule`; a plain `new ApiClient()` cannot read `Key`.
+- `settings.list` records the namespace filter as `otis.setting.namespaces` instead of a key attribute; DEBUG logs omit the player uuid (it is on the span).
