@@ -34,7 +34,7 @@ Every agent prompt restates these rules:
 
 ## 3. Command logic
 
-- [ ] 3.1 (unit, red first) `LinkCommandHandler` tests with a fake `LinkGateway`, a capturing `Audience` and a direct executor, one per spec scenario:
+- [x] 3.1 (unit, red first) `LinkCommandHandler` tests with a fake `LinkGateway`, a capturing `Audience` and a direct executor, one per spec scenario:
   - code component with copy-to-clipboard and expiry
   - `github` rejected without a gateway call
   - list with verified/unverified markers, and empty list
