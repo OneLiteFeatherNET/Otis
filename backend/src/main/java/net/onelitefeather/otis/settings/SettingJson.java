@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.micronaut.context.annotation.Factory;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import net.onelitefeather.otis.problem.InvalidSettingValueProblem;
 
@@ -24,7 +25,11 @@ public class SettingJson {
                 .build();
     }
 
+    /** Qualifier of the strict mapper; other Jackson mappers may be on the classpath and must not be picked up. */
+    public static final String MAPPER_NAME = "setting-values";
+
     @Singleton
+    @Named(MAPPER_NAME)
     ObjectMapper settingObjectMapper() {
         return newMapper();
     }

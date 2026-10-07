@@ -26,12 +26,12 @@ Branch `feat/player-settings` from `origin/feat/problem-details` (stacked; PR ba
 - [x] 3.1 (unit, red first) Tests for `SettingKeys.parse`: missing namespace, `minecraft:`, invalid characters, valid `olf:` / `lobby:` keys -> corresponding problem subtypes; plus Serde/`TypeConverter` round trip for `Key`; implement; verify tests pass
 - [x] 3.2 (unit, red first) Tests for `PlayerSettingService` with an in-memory fake repository and fixed `Clock`: created (version 1), updated (version n+1, new `updatedAt`), unchanged on semantically equal JSON (key order differs), delete existing/missing, player not found, value > 65536 bytes -> too large; implement entity, repository, DTO, sealed `PutResult`; verify tests pass
 - [x] 3.3 (unit, red first) `OpenTelemetryExtension` tests: one INTERNAL span per operation with name, attributes (player uuid, namespace, key, outcome), parent = current span, not ERROR for not-found/rejected, no attribute contains the value; implement D5; verify tests pass
-- [ ] 3.4 (integration, red first) Concurrent first write: two virtual-thread tasks put the same new key against H2, joined without sleeps; assert both succeed (200/201) and exactly one row exists; implement the one-time retry on unique violation; verify the test passes
+- [x] 3.4 (integration, red first) Concurrent first write: two virtual-thread tasks put the same new key against H2, joined without sleeps; assert both succeed (200/201) and exactly one row exists; implement the one-time retry on unique violation; verify the test passes
 
 ## 4. API
 
-- [ ] 4.1 (integration, red first) REST Assured tests for every scenario of "Versioned settings API", "Listing filters by namespace", "Key namespace rules", "Settings belong to known players", "Setting values are bounded" (status, problem `type`, body); implement `PlayerSettingController` with `@Operation`/`@ApiResponse` and `format: adventure-key` schemas; verify tests pass
-- [ ] 4.2 (integration) Test "Deleting a player is unaffected by settings": delete a player with settings via `POST /otis/delete/{owner}`, assert same response as before and settings gone; rerun the characterization tests from `add-problem-details`; verify all pass
+- [x] 4.1 (integration, red first) REST Assured tests for every scenario of "Versioned settings API", "Listing filters by namespace", "Key namespace rules", "Settings belong to known players", "Setting values are bounded" (status, problem `type`, body); implement `PlayerSettingController` with `@Operation`/`@ApiResponse` and `format: adventure-key` schemas; verify tests pass
+- [x] 4.2 (integration) Test "Deleting a player is unaffected by settings": delete a player with settings via `POST /otis/delete/{owner}`, assert same response as before and settings gone; rerun the characterization tests from `add-problem-details`; verify all pass
 - [ ] 4.3 Run `./gradlew :backend:build`; verify green and that the generated backend OpenAPI YAML contains the `/v1/players/{playerUuid}/settings` paths; push the branch
 
 ## 5. Client

@@ -25,8 +25,8 @@ public record PlayerSettingDTO(
                 type = "string", format = "adventure-key", example = "lobby:player_hider")
         Key key,
         @JsonInclude(JsonInclude.Include.ALWAYS)
-        @Schema(description = "The setting value: any JSON value, stored and returned without interpretation.",
-                example = "{\"enabled\":true}")
+        @Schema(description = "The setting value: any JSON value (object, array, string, number, boolean or null), "
+                + "stored and returned without interpretation.", nullable = true, example = "{\"enabled\":true}")
         Object value,
         @Schema(description = "Version of the setting, starting at 1 and increased with every change of the value.",
                 example = "1", minimum = "1")

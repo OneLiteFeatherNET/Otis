@@ -3,9 +3,9 @@ package net.onelitefeather.otis.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.micronaut.transaction.annotation.Transactional;
 import io.opentelemetry.api.OpenTelemetry;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import net.kyori.adventure.key.Key;
 import net.onelitefeather.otis.database.entity.PlayerSetting;
@@ -14,6 +14,7 @@ import net.onelitefeather.otis.dto.PlayerSettingDTO;
 import net.onelitefeather.otis.problem.PlayerNotFoundProblem;
 import net.onelitefeather.otis.problem.SettingNotFoundProblem;
 import net.onelitefeather.otis.problem.SettingValueTooLargeProblem;
+import net.onelitefeather.otis.settings.SettingJson;
 import net.onelitefeather.otis.settings.SettingKeys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public class PlayerSettingService {
     private final SettingSpans spans;
 
     @Inject
-    public PlayerSettingService(PlayerSettingRepository repository, ObjectMapper mapper, Clock clock,
+    public PlayerSettingService(PlayerSettingRepository repository, @Named(SettingJson.MAPPER_NAME) ObjectMapper mapper, Clock clock,
                                 OpenTelemetry openTelemetry) {
         this.repository = repository;
         this.mapper = mapper;
@@ -150,9 +151,13 @@ public class PlayerSettingService {
         });
     }
 
-    /** One attempt of the upsert in its own transaction; protected so the transactional interceptor applies. */
-    @Transactional
-    protected PutResult upsert(UUID playerId, Key key, JsonNode value) {
+    /**
+     * One attempt of the upsert. Deliberately without a surrounding transaction: with both Spring and
+     * Micronaut transaction managers on the classpath the declarative {@code @Transactional} is ambiguous,
+     * and each repository call is atomic on its own. Concurrent writers are resolved by the unique
+     * constraint (see {@link #put}); a concurrent update of the same setting is last-write-wins.
+     */
+    private PutResult upsert(UUID playerId, Key key, JsonNode value) {
         Optional<PlayerSetting> existing = find(playerId, key);
         if (existing.isEmpty()) {
             PlayerSetting created = repository.save(new PlayerSetting(playerId, key, value, 1, now()));
