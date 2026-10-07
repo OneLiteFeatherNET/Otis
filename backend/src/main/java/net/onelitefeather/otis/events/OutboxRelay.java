@@ -3,12 +3,13 @@ package net.onelitefeather.otis.events;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.context.event.StartupEvent;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.runtime.event.annotation.EventListener;
 import io.micronaut.scheduling.annotation.Scheduled;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.AttributeKey;
-import io.opentelemetry.api.metrics.ObservableLongGauge;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
@@ -73,15 +74,17 @@ public class OutboxRelay {
     private final Clock clock;
     private final String instanceId;
     private final Tracer tracer;
-    private final ObservableLongGauge pendingGauge;
-    /** Cached by each run so the gauge callback never touches the database. */
+    private final MeterRegistry meterRegistry;
+    private final Gauge pendingGauge;
+    /** Cached by each run so reading the gauge never touches the database. */
     private final AtomicLong pending = new AtomicLong();
     /** True after a failed run until a later run publishes again; makes the WARN once per failure burst. */
     private final AtomicBoolean failing = new AtomicBoolean();
 
     @Inject
     public OutboxRelay(OutboxEventRepository outbox, EventPublisher publisher, Clock clock,
-                       OpenTelemetry openTelemetry, @Value("${otis.events.instance-id:}") String configuredInstanceId) {
+                       OpenTelemetry openTelemetry, MeterRegistry meterRegistry,
+                       @Value("${otis.events.instance-id:}") String configuredInstanceId) {
         this.outbox = outbox;
         this.publisher = publisher;
         this.clock = clock;
@@ -89,11 +92,11 @@ public class OutboxRelay {
                 ? UUID.randomUUID().toString()
                 : configuredInstanceId;
         this.tracer = openTelemetry.getTracer(INSTRUMENTATION_SCOPE);
-        this.pendingGauge = openTelemetry.getMeter(INSTRUMENTATION_SCOPE).gaugeBuilder(PENDING_METRIC)
-                .ofLongs()
-                .setUnit("{event}")
-                .setDescription("Outbox events not yet published to Kafka")
-                .buildWithCallback(measurement -> measurement.record(pending.get()));
+        // Micrometer, like all Otis metrics: exported on /prometheus. The relay holds the AtomicLong strongly.
+        this.meterRegistry = meterRegistry;
+        this.pendingGauge = Gauge.builder(PENDING_METRIC, pending, AtomicLong::doubleValue)
+                .description("Outbox events not yet published to Kafka")
+                .register(meterRegistry);
     }
 
     @EventListener
@@ -104,7 +107,7 @@ public class OutboxRelay {
 
     @PreDestroy
     void close() {
-        pendingGauge.close();
+        meterRegistry.remove(pendingGauge);
     }
 
     /** Trigger of {@link #run()}. */

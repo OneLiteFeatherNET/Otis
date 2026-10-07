@@ -8,10 +8,10 @@ import io.micronaut.context.annotation.Property;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
-import io.opentelemetry.sdk.metrics.data.LongPointData;
-import io.opentelemetry.sdk.metrics.data.MetricData;
+import io.micrometer.core.instrument.Gauge;
 import io.opentelemetry.sdk.testing.junit5.OpenTelemetryExtension;
 import io.opentelemetry.sdk.trace.data.SpanData;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import jakarta.inject.Inject;
 import net.onelitefeather.otis.database.entity.OutboxEvent;
 import net.onelitefeather.otis.database.repository.OutboxEventRepository;
@@ -31,6 +31,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -55,6 +56,7 @@ class OutboxRelayObservabilityTest {
     @Inject
     DataSource dataSource;
 
+    private final SimpleMeterRegistry meters = new SimpleMeterRegistry();
     private final ManualClock clock = new ManualClock(START);
     private final RecordingEventPublisher publisher = new RecordingEventPublisher();
     private final Logger relayLogger = (Logger) LoggerFactory.getLogger(OutboxRelay.class);
@@ -66,7 +68,7 @@ class OutboxRelayObservabilityTest {
         OutboxRows.clear(dataSource);
         logs.start();
         relayLogger.addAppender(logs);
-        relay = new OutboxRelay(outbox, publisher, clock, otel.getOpenTelemetry(), "relay-a");
+        relay = new OutboxRelay(outbox, publisher, clock, otel.getOpenTelemetry(), meters, "relay-a");
     }
 
     @AfterEach
@@ -96,20 +98,17 @@ class OutboxRelayObservabilityTest {
     // --- gauge ---------------------------------------------------------------------------------------------
 
     @Test
-    void theGaugeReportsTheUnpublishedRowsInEventsWithoutAttributes() {
+    void theGaugeReportsTheUnpublishedRowsWithoutTags() {
         store(3);
         publisher.failWith(new EventPublishException("broker down"));
 
         relay.run();
 
-        MetricData gauge = otel.getMetrics().stream().filter(metric -> metric.getName().equals("otis.outbox.pending"))
-                .findFirst().orElseThrow(() -> new AssertionError("gauge otis.outbox.pending is not registered"));
-        assertEquals("{event}", gauge.getUnit(), "unit");
-        assertEquals("Outbox events not yet published to Kafka", gauge.getDescription(), "description");
-        assertEquals(1, gauge.getLongGaugeData().getPoints().size(), "one series, so cardinality 1");
-        LongPointData point = gauge.getLongGaugeData().getPoints().iterator().next();
-        assertEquals(3, point.getValue(), "all three rows are still pending");
-        assertTrue(point.getAttributes().isEmpty(), "the gauge has no attributes");
+        Gauge gauge = meters.find("otis.outbox.pending").gauge();
+        assertNotNull(gauge, "gauge otis.outbox.pending must be present");
+        assertEquals("Outbox events not yet published to Kafka", gauge.getId().getDescription(), "description");
+        assertTrue(gauge.getId().getTags().isEmpty(), "the gauge has no tags");
+        assertEquals(3.0, gauge.value(), "all three rows are still pending");
     }
 
     @Test
@@ -118,9 +117,23 @@ class OutboxRelayObservabilityTest {
 
         relay.run();
 
-        MetricData gauge = otel.getMetrics().stream().filter(metric -> metric.getName().equals("otis.outbox.pending"))
-                .findFirst().orElseThrow();
-        assertEquals(0, gauge.getLongGaugeData().getPoints().iterator().next().getValue(), "nothing pending any more");
+        assertEquals(0.0, meters.get("otis.outbox.pending").gauge().value(), "nothing pending any more");
+    }
+
+    @Test
+    void closingTheRelayRemovesTheGauge() {
+        relay.close();
+
+        assertNull(meters.find("otis.outbox.pending").gauge(), "the gauge is removed");
+    }
+
+    @Test
+    void noOpenTelemetryMetricIsCreated() {
+        store(1);
+
+        relay.run();
+
+        assertTrue(otel.getMetrics().isEmpty(), "the backlog is a Micrometer metric only");
     }
 
     // --- span ----------------------------------------------------------------------------------------------
@@ -159,7 +172,7 @@ class OutboxRelayObservabilityTest {
                 getClass().getClassLoader(), new Class<?>[]{OutboxEventRepository.class}, (proxy, method, args) -> {
                     throw new IllegalStateException("database down");
                 });
-        OutboxRelay failing = new OutboxRelay(broken, publisher, clock, otel.getOpenTelemetry(), "relay-b");
+        OutboxRelay failing = new OutboxRelay(broken, publisher, clock, otel.getOpenTelemetry(), meters, "relay-b");
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class, failing::run);
 

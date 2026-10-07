@@ -3,6 +3,7 @@ package net.onelitefeather.otis.events;
 import io.micronaut.context.annotation.Property;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import io.opentelemetry.api.OpenTelemetry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import jakarta.inject.Inject;
 import net.onelitefeather.otis.database.entity.OutboxEvent;
 import net.onelitefeather.otis.database.repository.OutboxEventRepository;
@@ -48,7 +49,7 @@ class OutboxRelayTest {
     }
 
     private OutboxRelay relay(String instanceId) {
-        return new OutboxRelay(outbox, publisher, clock, OpenTelemetry.noop(), instanceId);
+        return new OutboxRelay(outbox, publisher, clock, OpenTelemetry.noop(), new SimpleMeterRegistry(), instanceId);
     }
 
     private UUID store(UUID player, String marker, Instant createdAt) {
