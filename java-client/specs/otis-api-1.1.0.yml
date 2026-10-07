@@ -1,0 +1,484 @@
+openapi: 3.0.1
+info:
+  title: Otis API
+  description: Simple user management system
+  contact:
+    name: Management
+    url: https://onelitefeather.net
+    email: admin@onelitefeather.net
+  license:
+    name: Apache-2.0
+  version: 1.1.0
+tags:
+- name: Player
+  description: Player management
+paths:
+  /otis:
+    post:
+      tags:
+      - Player
+      summary: Add a new Otis player
+      description: This endpoint allows you to add a new Otis player to the database.
+      operationId: addPlayer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                playerDTO:
+                  $ref: '#/components/schemas/OtisPlayerDTO'
+        required: true
+      responses:
+        '200':
+          description: Player added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtisPlayerDTO'
+        '400':
+          description: The request is invalid, e.g. a path value or body member violates a constraint
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: The player could not be added to the database
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /otis/all:
+    get:
+      tags:
+      - Player
+      summary: Get all Otis players
+      description: This endpoint retrieves all Otis players from the database.
+      operationId: getAllPlayers
+      parameters:
+      - name: pageable
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/Pageable'
+      responses:
+        '200':
+          description: Players retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtisPlayerDTO'
+        '400':
+          description: The request is invalid, e.g. a path value or body member violates a constraint
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: No players found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /otis/byId/{owner}:
+    get:
+      tags:
+      - Player
+      summary: Get Otis player by ID
+      description: This endpoint retrieves an Otis player by their UUID.
+      operationId: getPlayerById
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Player was successfully found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtisPlayerDTO'
+        '400':
+          description: The request is invalid, e.g. a path value or body member violates a constraint
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Player not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /otis/byName/{owner}:
+    get:
+      tags:
+      - Player
+      summary: Get Otis player by name
+      description: This endpoint retrieves an Otis player by their name.
+      operationId: getPlayerByName
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Player was successfully found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtisPlayerDTO'
+        '400':
+          description: The request is invalid, e.g. a path value or body member violates a constraint
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Player not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /otis/delete/{owner}:
+    post:
+      tags:
+      - Player
+      summary: Delete an Otis player
+      description: This endpoint allows you to delete an Otis player from the database.
+      operationId: deletePlayer
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Player deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtisPlayerDTO'
+        '400':
+          description: The request is invalid, e.g. a path value or body member violates a constraint
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Player not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /otis/update/{owner}:
+    post:
+      tags:
+      - Player
+      summary: Update an existing Otis player
+      description: This endpoint allows you to update an existing Otis player in the database.
+      operationId: updatePlayer
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                playerDTO:
+                  $ref: '#/components/schemas/OtisPlayerDTO'
+        required: true
+      responses:
+        '200':
+          description: Player updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtisPlayerDTO'
+        '400':
+          description: Bad request, player UUID does not match the owner
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Player not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /search/byId/{id}:
+    get:
+      tags:
+      - Player
+      - Search
+      summary: Search for a player by their ID
+      description: Returns the player information if found, otherwise returns 404 Not Found.
+      operationId: searchById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Player found and returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtisPlayerDTO'
+        '400':
+          description: The request is invalid, e.g. a path value or body member violates a constraint
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Player not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /search/byName/{name}:
+    get:
+      tags:
+      - Player
+      - Search
+      summary: Search for a player by their name
+      description: Returns the player information if found, otherwise returns 404 Not Found.
+      operationId: searchByName
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          maxLength: 16
+          minLength: 3
+          pattern: ^[a-zA-Z0-9_]+$
+          type: string
+          x-pattern-message: Username can only contain alphanumeric characters and underscores.
+      responses:
+        '200':
+          description: Player found and returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtisPlayerDTO'
+        '400':
+          description: The request is invalid, e.g. a path value or body member violates a constraint
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Player not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+components:
+  schemas:
+    OtisPlayerDTO:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Unique identifier for the player in the Otis system.
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+        playerUuid:
+          type: string
+          description: Unique identifier for the player from mojang.
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174001
+        playerName:
+          maximum: 16
+          minimum: 3
+          maxLength: 16
+          minLength: 3
+          pattern: ^[a-zA-Z0-9_]+$
+          type: string
+          description: The player's username.
+          format: username
+          example: Player123
+          x-pattern-message: Username can only contain alphanumeric characters and underscores.
+          x-size-message: Username must be between 3 and 16 characters.
+        firstJoin:
+          type: integer
+          description: The timestamp of the player's first join in milliseconds since epoch.
+          format: int64
+          example: 1633072800000
+        lastJoin:
+          type: integer
+          description: The timestamp of the player's last join in milliseconds since epoch.
+          format: int64
+          example: 1633072800000
+        profileTextures:
+          type: object
+          additionalProperties: true
+          description: A map containing the player's profile textures, such as skin and cape.
+        locale:
+          type: string
+          description: The locale of the player, used for localization purposes.
+          format: locale
+          example: en-US
+    Pageable:
+      required:
+      - size
+      - sort
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Sort'
+      - properties:
+          number:
+            type: integer
+            format: int32
+          size:
+            type: integer
+            format: int32
+          mode:
+            $ref: '#/components/schemas/Pageable.Mode'
+          sort:
+            $ref: '#/components/schemas/Sort'
+    Pageable.Mode:
+      type: string
+      enum:
+      - CURSOR_NEXT
+      - CURSOR_PREVIOUS
+      - OFFSET
+    Sort:
+      required:
+      - orderBy
+      type: object
+      properties:
+        orderBy:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sort.Order'
+    Sort.Order:
+      required:
+      - direction
+      - ignoreCase
+      - property
+      type: object
+      properties:
+        ignoreCase:
+          type: boolean
+        direction:
+          $ref: '#/components/schemas/Sort.Order.Direction'
+        property:
+          type: string
+        ascending:
+          type: boolean
+    Sort.Order.Direction:
+      type: string
+      enum:
+      - ASC
+      - DESC
+    ProblemDetail:
+      required:
+      - status
+      - title
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+          description: URI identifying the kind of problem, 'about:blank' when there is no more specific
+            type.
+          example: https://otis.onelitefeather.net/problems/constraint-violation
+        title:
+          type: string
+          description: Short, human-readable summary of the problem type.
+          example: Constraint Violation
+        status:
+          type: integer
+          description: HTTP status code of the response.
+          format: int32
+          example: 400
+        detail:
+          type: string
+          description: Explanation specific to this occurrence of the problem.
+        instance:
+          type: string
+          description: URI identifying this occurrence of the problem.
+        traceId:
+          type: string
+          description: W3C trace id of the request, present while tracing is enabled.
+          example: 4bf92f3577b34da6a3ce929d0e0e4736
+        violations:
+          type: array
+          description: 'Present for constraint violations: one entry per violated constraint.'
+          items:
+            $ref: '#/components/schemas/ProblemViolation'
+      additionalProperties: true
+      description: RFC 9457 problem details. Further extension members may be present.
+    ProblemViolation:
+      type: object
+      properties:
+        field:
+          type: string
+          description: Path of the invalid input.
+          example: add.playerDTO.playerName
+        message:
+          type: string
+          description: What is wrong with the input.
+          example: Username must be between 3 and 16 characters.
+      description: A violated request constraint.
