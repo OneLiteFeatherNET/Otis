@@ -48,4 +48,41 @@ final class OutboxRows {
             throw new IllegalStateException("cannot count outbox_event", e);
         }
     }
+
+    /** Removes all rows, so a test starts from an empty outbox (the relay claims every pending row). */
+    static void clear(DataSource dataSource) {
+        update(dataSource, "delete from outbox_event");
+    }
+
+    static boolean exists(DataSource dataSource, UUID id) {
+        return scalar(dataSource, "select count(*) from outbox_event where id = '" + id + "'") == 1;
+    }
+
+    static long attempts(DataSource dataSource, UUID id) {
+        return scalar(dataSource, "select attempts from outbox_event where id = '" + id + "'");
+    }
+
+    static long pending(DataSource dataSource) {
+        return scalar(dataSource, "select count(*) from outbox_event where published_at is null");
+    }
+
+    private static void update(DataSource dataSource, String sql) {
+        try (Connection connection = dataSource.unwrap(com.zaxxer.hikari.HikariDataSource.class).getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new IllegalStateException("cannot run " + sql, e);
+        }
+    }
+
+    private static long scalar(DataSource dataSource, String sql) {
+        try (Connection connection = dataSource.unwrap(com.zaxxer.hikari.HikariDataSource.class).getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()) {
+            rs.next();
+            return rs.getLong(1);
+        } catch (SQLException e) {
+            throw new IllegalStateException("cannot run " + sql, e);
+        }
+    }
 }
