@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.17.0](https://github.com/OneLiteFeatherNET/Otis/compare/v1.16.2...v1.17.0) (2026-10-07)
+
+
+### Features
+
+* **api:** return rfc 9457 problem details for errors ([#180](https://github.com/OneLiteFeatherNET/Otis/issues/180)) ([2959ad6](https://github.com/OneLiteFeatherNET/Otis/commit/2959ad68daa0cdc8915ad1cafd43893776460c11))
+* **settings:** add versioned player settings api with adventure keys ([#181](https://github.com/OneLiteFeatherNET/Otis/issues/181)) ([4008e38](https://github.com/OneLiteFeatherNET/Otis/commit/4008e38d83ade0b04f051810adbf09a1aa5fbcce))
+
+
+### Bug Fixes
+
+* **deps:** update dependency com.fasterxml.jackson:jackson-bom to v2.22.3 ([#176](https://github.com/OneLiteFeatherNET/Otis/issues/176)) ([79369c7](https://github.com/OneLiteFeatherNET/Otis/commit/79369c77a4a6aa22e35be943cb3c2a0764f26a4d))
+* **deps:** update dependency com.velocitypowered:velocity-api to v4.2.0 ([#175](https://github.com/OneLiteFeatherNET/Otis/issues/175)) ([dbec749](https://github.com/OneLiteFeatherNET/Otis/commit/dbec7490959f5eb888a706725a05c197d8d907e7))
+* **deps:** update dependency org.openapitools:jackson-databind-nullable to v0.2.12 ([#178](https://github.com/OneLiteFeatherNET/Otis/issues/178)) ([7642f69](https://github.com/OneLiteFeatherNET/Otis/commit/7642f691f59a86466dbd72316899eddff479f0ac))
+
 ## [1.16.2](https://github.com/OneLiteFeatherNET/Otis/compare/v1.16.1...v1.16.2) (2026-09-06)
 
 
