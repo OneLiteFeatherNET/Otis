@@ -74,3 +74,14 @@ router:
     swagger-ui:
       paths: classpath:META-INF/swagger/views/swagger-ui
       mapping: /swagger-ui/**
+
+# Flyway — schema migrations. Existing databases without history are baselined at version 1
+# (the schema Hibernate created before Flyway), so V1 only ever runs on empty databases and
+# no existing table is touched. FLYWAY_ENABLED=false lets the service start without migrating.
+# The migration directory per database vendor is chosen by VendorMigrationLocations.
+flyway:
+  datasources:
+    default:
+      enabled: ${FLYWAY_ENABLED:true}
+      baseline-on-migrate: true
+      baseline-version: 1

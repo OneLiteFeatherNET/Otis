@@ -1,5 +1,6 @@
 # In-memory H2 for tests: no Docker, same on ubuntu/windows/macos CI.
 # Each application context gets its own database via the random suffix.
+# The schema comes from the Flyway migrations; Hibernate only validates that the mapping matches.
 datasources:
   default:
     url: jdbc:h2:mem:otis-${random.uuid};DB_CLOSE_DELAY=-1
@@ -12,4 +13,4 @@ jpa:
     properties:
       hibernate:
         hbm2ddl:
-          auto: create-drop
+          auto: validate
