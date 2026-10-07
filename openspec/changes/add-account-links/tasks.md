@@ -43,7 +43,7 @@ Every agent prompt restates these rules:
   - valid and invalid handles and URLs per provider, including a foreign host, `http`, and more than 200 characters
 
   Implement it (D4) and verify the tests pass.
-- [ ] 3.3 (integration, red first) Rollback test for `LinkTransactions`: an exception after the code claim leaves the code unconsumed on H2. Implement D3 with the explicitly qualified transaction operations. Verify it passes, and record which bean resolved in the PR notes.
+- [x] 3.3 (integration, red first) Rollback test for `LinkTransactions`: an exception after the code claim leaves the code unconsumed on H2. Implement D3 with the explicitly qualified transaction operations. Verify it passes, and record which bean resolved in the PR notes.
 - [ ] 3.4 (unit, red first) `AccountLinkService` tests with fake repositories and a fixed `Clock` for every rule:
   - issue a code; the previous code is revoked
   - rate limit at 6 codes, and again after the window
