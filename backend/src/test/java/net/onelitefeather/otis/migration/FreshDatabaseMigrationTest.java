@@ -16,6 +16,8 @@ class FreshDatabaseMigrationTest {
         try (ApplicationContext ignored = MigrationTestSupport.startApplication(url)) {
             assertTrue(MigrationTestSupport.tableExists(url, "otis_player"), "otis_player must exist after migration");
             assertTrue(MigrationTestSupport.tableExists(url, "player_setting"), "player_setting must exist after migration");
+            assertTrue(MigrationTestSupport.tableExists(url, "account_link"), "account_link must exist after migration");
+            assertTrue(MigrationTestSupport.tableExists(url, "link_code"), "link_code must exist after migration");
         }
     }
 }

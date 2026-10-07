@@ -25,8 +25,8 @@ Every agent prompt restates these rules:
 
 ## 2. Schema
 
-- [ ] 2.1 (integration, red first) Extend the fresh-database migration test to expect `account_link` and `link_code`. Write V3 for `h2`, `postgresql` and `mariadb` (D1), plus the entities. Verify that Hibernate `validate` and the test pass.
-- [ ] 2.2 (integration, red first) Extend the existing-database migration test: the pre-V3 schema with players and settings rows is unchanged after the migration, and V3 is applied. Verify that it passes.
+- [x] 2.1 (integration, red first) Extend the fresh-database migration test to expect `account_link` and `link_code`. Write V3 for `h2`, `postgresql` and `mariadb` (D1), plus the entities. Verify that Hibernate `validate` and the test pass.
+- [x] 2.2 (integration, red first) Extend the existing-database migration test: the pre-V3 schema with players and settings rows is unchanged after the migration, and V3 is applied. Verify that it passes.
 
 ## 3. Domain and service
 

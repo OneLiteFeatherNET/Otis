@@ -45,6 +45,25 @@ final class MigrationTestSupport {
         return context;
     }
 
+    /** Migrates the H2 database at {@code url} (baselined at 1 like production) only up to {@code version}. */
+    static void migrateUpTo(String url, String version) {
+        org.flywaydb.core.Flyway.configure()
+                .dataSource(url, "sa", "")
+                .locations("classpath:db/migration/h2")
+                .baselineOnMigrate(true)
+                .baselineVersion("1")
+                .target(version)
+                .load()
+                .migrate();
+    }
+
+    static void execute(String url, String sql) throws SQLException {
+        try (Connection connection = DriverManager.getConnection(url, "sa", "");
+             Statement statement = connection.createStatement()) {
+            statement.execute(sql);
+        }
+    }
+
     static void runScript(String url, String classpathResource) throws SQLException, IOException {
         try (InputStream in = MigrationTestSupport.class.getResourceAsStream(classpathResource)) {
             if (in == null) {
