@@ -43,7 +43,7 @@ Branch `feat/player-settings` from `origin/feat/problem-details` (stacked; PR ba
 
 ## 6. Full build
 
-- [ ] 6.1 Run `./gradlew clean build`; verify green; tick all completed boxes in this file
+- [x] 6.1 Run `./gradlew clean build`; verify green; tick all completed boxes in this file
 
 ## 7. Pull Request
 
