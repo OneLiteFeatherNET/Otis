@@ -52,6 +52,19 @@ When a player joins or leaves the server, the plugin:
 - `config/OtisConfig.java`: Configuration class for storing and managing the base URL
 - `listener/PlayerListener.java`: Event listener for player join and leave events
 
+- `link/`: the `/link`, `/links`, `/unlink` and `/social` commands, their translations (`lang/otis_en.properties`, `lang/otis_de.properties`) and the gateway to Otis' account link API
+
+### Commands
+
+| Command | Permission | Description |
+| --- | --- | --- |
+| `/link <discord\|twitch\|youtube>` | `otis.command.link` | Requests a link code (click to copy) to redeem on the provider |
+| `/links` | `otis.command.links` | Lists your links as verified or unverified |
+| `/unlink <provider>` | `otis.command.unlink` | Removes a link |
+| `/social <provider> <handle\|url>` | `otis.command.social` | Sets a public, unverified profile link |
+
+The commands need an Otis backend with the account link endpoints; against an older backend they answer that Otis is unavailable. Proxies must be restarted to load the commands.
+
 ### Dependencies
 
 - Otis Client: Used to communicate with the Otis API
