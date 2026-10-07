@@ -25,12 +25,12 @@ Every agent prompt restates these rules:
 
 ## 2. Translations
 
-- [ ] 2.1 (unit, red first) Write the bundle consistency test:
+- [x] 2.1 (unit, red first) Write the bundle consistency test:
   - every key in `otis_en` is in `otis_de` and vice versa
   - every constant in `Messages` is in the fallback bundle
 
   Add `Messages` and both bundles (UTF-8, MiniMessage tags) with the keys from D4. Verify the test passes.
-- [ ] 2.2 (unit, red first) Rendering test: `OtisTranslations` is registered with `GlobalTranslator`. For `otis.link.list.empty`, `Locale.GERMAN` renders German and `Locale.FRENCH` renders the English fallback. Implement and verify.
+- [x] 2.2 (unit, red first) Rendering test: `OtisTranslations` is registered with `GlobalTranslator`. For `otis.link.list.empty`, `Locale.GERMAN` renders German and `Locale.FRENCH` renders the English fallback. Implement and verify.
 
 ## 3. Command logic
 
