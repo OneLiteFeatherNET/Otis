@@ -1,5 +1,6 @@
 package net.onelitefeather.otis.problem;
 
+import io.micronaut.context.annotation.Property;
 import io.micronaut.context.annotation.Replaces;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -24,8 +25,17 @@ import java.util.Map;
 @Replaces(ProblemJsonErrorResponseBodyProvider.class)
 public class OtisProblemBodyProvider extends ProblemJsonErrorResponseBodyProvider {
 
-    public OtisProblemBodyProvider(ProblemConfiguration configuration) {
+    private final boolean tracingEnabled;
+
+    /**
+     * @param configuration  Micronaut Problem JSON configuration
+     * @param tracesExporter value of {@code otel.traces.exporter}; {@code none} means tracing is off,
+     *                       in which case no trace id is added even though the SDK still creates spans
+     */
+    public OtisProblemBodyProvider(ProblemConfiguration configuration,
+                                   @Property(name = "otel.traces.exporter", defaultValue = "none") String tracesExporter) {
         super(configuration);
+        this.tracingEnabled = !"none".equalsIgnoreCase(tracesExporter.trim());
     }
 
     @Override
@@ -37,6 +47,9 @@ public class OtisProblemBodyProvider extends ProblemJsonErrorResponseBodyProvide
         Map<String, Object> extensions = new LinkedHashMap<>(problem.getParameters());
         if (problem instanceof ConstraintViolationThrowableProblem violations) {
             extensions.put("violations", violations.getViolations());
+        }
+        if (tracingEnabled) {
+            TraceIds.current().ifPresent(traceId -> extensions.put("traceId", traceId));
         }
         return new ProblemResponse(problem, extensions);
     }

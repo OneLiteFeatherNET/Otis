@@ -46,6 +46,8 @@ dependencyResolutionManagement {
             // Observability — JSON logging + OpenTelemetry (see backend/build.gradle.kts).
             // Version managed by the Micronaut platform BOM (opentelemetry-bom).
             library("opentelemetry-exporter-otlp", "io.opentelemetry", "opentelemetry-exporter-otlp").withoutVersion()
+            // Test only: in-memory span exporter (OpenTelemetryExtension). Version from the platform BOM.
+            library("opentelemetry-sdk-testing", "io.opentelemetry", "opentelemetry-sdk-testing").withoutVersion()
             library("logstash-logback-encoder", "net.logstash.logback", "logstash-logback-encoder").versionRef("logstash-logback-encoder")
             library("opentelemetry-logback-mdc", "io.opentelemetry.instrumentation", "opentelemetry-logback-mdc-1.0").versionRef("opentelemetry-instrumentation-alpha")
             library("janino", "org.codehaus.janino", "janino").versionRef("janino")
