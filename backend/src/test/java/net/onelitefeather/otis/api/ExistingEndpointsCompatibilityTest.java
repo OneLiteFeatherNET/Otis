@@ -6,7 +6,6 @@ import io.restassured.specification.RequestSpecification;
 import jakarta.inject.Inject;
 import net.onelitefeather.otis.database.entity.OtisPlayer;
 import net.onelitefeather.otis.database.repository.OtisPlayerRepository;
-import net.onelitefeather.otis.dto.OtisPlayerDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -80,12 +79,30 @@ class ExistingEndpointsCompatibilityTest {
     @Test
     void updateWithMismatchingOwnerAnswers400() {
         UUID owner = UUID.randomUUID();
-        OtisPlayerDTO body = new OtisPlayerDTO(
-                null, UUID.randomUUID(), "Mismatch_1", 1L, 2L, Map.of(), Locale.US);
+        String body = """
+                {"playerDTO":{"playerUuid":"%s","playerName":"Mismatch_1","firstJoin":1,"lastJoin":2,"profileTextures":{},"locale":"en-US"}}
+                """.formatted(UUID.randomUUID());
 
         spec.contentType("application/json").body(body)
                 .when().post("/otis/update/{owner}", owner)
                 .then().statusCode(HttpStatus.BAD_REQUEST.getCode());
+    }
+
+    @Test
+    void addPlayerWithWrappedBodyAnswers200WithStoredPlayer() {
+        UUID mojangUuid = UUID.randomUUID();
+        String body = """
+                {"playerDTO":{"playerUuid":"%s","playerName":"Added_Player","firstJoin":1,"lastJoin":2,"profileTextures":{},"locale":"en-US"}}
+                """.formatted(mojangUuid);
+
+        String storedUuid = spec.contentType("application/json").body(body)
+                .when().post("/otis")
+                .then()
+                .statusCode(HttpStatus.OK.getCode())
+                .body("playerUuid", equalTo(mojangUuid.toString()))
+                .body("playerName", equalTo("Added_Player"))
+                .extract().path("uuid");
+        createdPlayers.add(UUID.fromString(storedUuid));
     }
 
     @Test
