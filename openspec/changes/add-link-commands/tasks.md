@@ -20,8 +20,8 @@ Every agent prompt restates these rules:
 
 ## 1. Setup
 
-- [ ] 1.1 Copy `openspec/changes/add-link-commands/` from `/mnt/projects/oss/onelitefeather/Otis` into the worktree and commit it as `docs(openspec): add add-link-commands change`. Verify `openspec validate add-link-commands --strict` passes.
-- [ ] 1.2 Add `velocity-api` as `testImplementation`, plus JUnit and Logback test dependencies, to `velocity-plugin`. Check the Adventure version that `velocity-api` 4.2.0 brings and its translation store API (D4), and record the result in the PR notes. Verify `./gradlew :velocity-plugin:test` runs (no tests yet).
+- [x] 1.1 Copy `openspec/changes/add-link-commands/` from `/mnt/projects/oss/onelitefeather/Otis` into the worktree and commit it as `docs(openspec): add add-link-commands change`. Verify `openspec validate add-link-commands --strict` passes.
+- [x] 1.2 Add `velocity-api` as `testImplementation`, plus JUnit and Logback test dependencies, to `velocity-plugin`. Check the Adventure version that `velocity-api` 4.2.0 brings and its translation store API (D4), and record the result in the PR notes. Verify `./gradlew :velocity-plugin:test` runs (no tests yet).
 
 ## 2. Translations
 
