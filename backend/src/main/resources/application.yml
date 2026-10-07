@@ -85,3 +85,18 @@ flyway:
       enabled: ${FLYWAY_ENABLED:true}
       baseline-on-migrate: true
       baseline-version: 1
+
+# Account link events (transactional outbox -> Kafka). Everything is off unless KAFKA_ENABLED=true:
+# then link changes write outbox rows and the relay publishes them to the topic otis.account-links.
+# Note: micronaut-kafka has no global enabled switch; every Kafka bean is gated by otis.events.enabled,
+# and the Kafka health indicator (which would probe localhost:9092) is switched off with it.
+kafka:
+  bootstrap:
+    servers: ${KAFKA_BOOTSTRAP_SERVERS:`localhost:9092`}
+  health:
+    enabled: ${KAFKA_ENABLED:false}
+otis:
+  events:
+    enabled: ${KAFKA_ENABLED:false}
+    # Identifies the relay replica that holds a lease on an outbox row (the pod name in Kubernetes).
+    instance-id: ${HOSTNAME:}

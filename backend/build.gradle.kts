@@ -57,6 +57,11 @@ dependencies {
     implementation(mn.micronaut.tracing.opentelemetry.jdbc)
     implementation(libs.opentelemetry.exporter.otlp)
 
+    // Account link events: Kafka client + producer spans/traceparent headers. Both stay inert unless
+    // KAFKA_ENABLED=true (see application.yml).
+    implementation(mn.micronaut.kafka)
+    implementation(mn.micronaut.tracing.opentelemetry.kafka)
+
     // Structured JSON logging for Grafana Loki + trace/log correlation.
     // logstash encoder renders JSON; the OTel MDC appender injects trace_id/span_id.
     implementation(libs.logstash.logback.encoder)
