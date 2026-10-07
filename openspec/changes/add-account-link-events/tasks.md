@@ -63,7 +63,7 @@ Every agent prompt restates these rules:
 
 ## 6. Deployment config (separate repository)
 
-- [ ] 6.1 In `/mnt/projects/oss/onelitefeather/Kubernetes-FLUX`, create a worktree on a new branch `feat/otis-kafka-events` from `origin/main`. In `products/otis/clusters/feather-core/otis/release.yaml`, add the env entries `KAFKA_ENABLED=true` and `KAFKA_BOOTSTRAP_SERVERS=feather-kafka-kafka-bootstrap.kafka.svc:9092`, following the file's existing `env` list. Commit `feat(otis): enable account link events on kafka` with the `Claude-Session` trailer, push, and open a PR. The PR body states that it must be merged only after an Otis release containing `add-account-link-events` is deployed, and ends with `https://claude.ai/code/session_012BmpdMdQ5wwagagQvfcq8S`. **Do not merge.** Verify the PR checks pass, then remove the worktree.
+- [x] 6.1 In `/mnt/projects/oss/onelitefeather/Kubernetes-FLUX`, create a worktree on a new branch `feat/otis-kafka-events` from `origin/main`. In `products/otis/clusters/feather-core/otis/release.yaml`, add the env entries `KAFKA_ENABLED=true` and `KAFKA_BOOTSTRAP_SERVERS=feather-kafka-kafka-bootstrap.kafka.svc:9092`, following the file's existing `env` list. Commit `feat(otis): enable account link events on kafka` with the `Claude-Session` trailer, push, and open a PR. The PR body states that it must be merged only after an Otis release containing `add-account-link-events` is deployed, and ends with `https://claude.ai/code/session_012BmpdMdQ5wwagagQvfcq8S`. **Do not merge.** Verify the PR checks pass, then remove the worktree.
 
 ## 7. Pull Request
 
