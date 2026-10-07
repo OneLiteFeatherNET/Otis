@@ -32,9 +32,11 @@ class ExistingDatabaseMigrationTest {
             assertTrue(MigrationTestSupport.tableExists(url, "player_setting"), "player_setting must exist after the upgrade");
             assertTrue(MigrationTestSupport.tableExists(url, "account_link"), "account_link must exist after the upgrade");
             assertTrue(MigrationTestSupport.tableExists(url, "link_code"), "link_code must exist after the upgrade");
-            assertEquals(List.of(List.of("version=1", "type=BASELINE"), List.of("version=2", "type=SQL"), List.of("version=3", "type=SQL")),
+            assertTrue(MigrationTestSupport.tableExists(url, "outbox_event"), "outbox_event must exist after the upgrade");
+            assertEquals(List.of(List.of("version=1", "type=BASELINE"), List.of("version=2", "type=SQL"), List.of("version=3", "type=SQL"),
+                            List.of("version=4", "type=SQL")),
                     MigrationTestSupport.dumpColumns(url, "\"flyway_schema_history\" where \"version\" is not null", "\"installed_rank\"", "\"version\"", "\"type\""),
-                    "V1 must be baselined (never executed) and only V2 and V3 applied");
+                    "V1 must be baselined (never executed) and only V2, V3 and V4 applied");
         }
     }
 
@@ -59,6 +61,30 @@ class ExistingDatabaseMigrationTest {
             assertEquals(List.of(List.of("version=3", "type=SQL")),
                     MigrationTestSupport.dumpColumns(url, "\"flyway_schema_history\" where \"version\" = '3'", "\"installed_rank\"", "\"version\"", "\"type\""),
                     "V3 must be applied exactly once on top of V2");
+        }
+    }
+
+    @Test
+    void playerSettingAndLinkRowsOfAV3DatabaseStayIdenticalWhenTheOutboxIsAdded() throws Exception {
+        String url = MigrationTestSupport.uniqueDatabaseUrl();
+        MigrationTestSupport.runScript(url, FIXTURE);
+        MigrationTestSupport.migrateUpTo(url, "3");
+        MigrationTestSupport.execute(url, "insert into account_link (id, player_id, provider, external_id, verified, linked_at) "
+                + "values ('88888888-8888-4888-8888-888888888888', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'discord', "
+                + "'123456789012345678', true, timestamp with time zone '2026-01-01 00:00:00+00')");
+        assertFalse(MigrationTestSupport.tableExists(url, "outbox_event"), "precondition: no outbox at V3");
+        List<List<String>> players = MigrationTestSupport.dumpRows(url, "otis_player", ORDER);
+        List<List<String>> links = MigrationTestSupport.dumpRows(url, "account_link", "id");
+        assertFalse(links.isEmpty(), "precondition: the V3 database holds a link");
+
+        try (ApplicationContext ignored = MigrationTestSupport.startApplication(url)) {
+            assertEquals(players, MigrationTestSupport.dumpRows(url, "otis_player", ORDER), "player rows must be unchanged by V4");
+            assertEquals(links, MigrationTestSupport.dumpRows(url, "account_link", "id"), "link rows must be unchanged by V4");
+            assertTrue(MigrationTestSupport.tableExists(url, "outbox_event"), "outbox_event must exist after V4");
+            assertEquals(List.of(), MigrationTestSupport.dumpRows(url, "outbox_event", "id"), "the new outbox starts empty");
+            assertEquals(List.of(List.of("version=4", "type=SQL")),
+                    MigrationTestSupport.dumpColumns(url, "\"flyway_schema_history\" where \"version\" = '4'", "\"installed_rank\"", "\"version\"", "\"type\""),
+                    "V4 must be applied exactly once on top of V3");
         }
     }
 }
