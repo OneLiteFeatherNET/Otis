@@ -21,45 +21,45 @@ Every agent prompt restates these rules:
 
 ## 1. Setup
 
-- [ ] 1.1 Copy `openspec/changes/add-account-link-events/` from `/mnt/projects/oss/onelitefeather/Otis` into the worktree and commit it as `docs(openspec): add add-account-link-events change`. Verify `openspec validate add-account-link-events --strict` passes.
-- [ ] 1.2 Add `micronaut-kafka` and `micronaut-tracing-opentelemetry-kafka` (platform catalog versions) and set `kafka.enabled: ${KAFKA_ENABLED:false}`, `otis.events.enabled: ${KAFKA_ENABLED:false}` and `kafka.bootstrap.servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}`. Verify an application context starts without Kafka (`./gradlew :backend:test` green), and confirm from the module documentation how declared `NewTopic` beans are created (D3).
+- [x] 1.1 Copy `openspec/changes/add-account-link-events/` from `/mnt/projects/oss/onelitefeather/Otis` into the worktree and commit it as `docs(openspec): add add-account-link-events change`. Verify `openspec validate add-account-link-events --strict` passes.
+- [x] 1.2 Add `micronaut-kafka` and `micronaut-tracing-opentelemetry-kafka` (platform catalog versions) and set `kafka.enabled: ${KAFKA_ENABLED:false}`, `otis.events.enabled: ${KAFKA_ENABLED:false}` and `kafka.bootstrap.servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}`. Verify an application context starts without Kafka (`./gradlew :backend:test` green), and confirm from the module documentation how declared `NewTopic` beans are created (D3).
 
 ## 2. Schema
 
-- [ ] 2.1 (integration, red first) Extend the fresh-database and existing-database migration tests for `outbox_event`. Write V4 for `h2`, `postgresql` and `mariadb` (D1). Verify the tests pass and the existing rows are unchanged.
+- [x] 2.1 (integration, red first) Extend the fresh-database and existing-database migration tests for `outbox_event`. Write V4 for `h2`, `postgresql` and `mariadb` (D1). Verify the tests pass and the existing rows are unchanged.
 
 ## 3. Outbox write
 
-- [ ] 3.1 (unit, red first) Tests for the CloudEvent records (D2): JSON field names, `specversion` 1.0, `type` per change, `subject` = player uuid, and `data` without code, display name or unverified value. Implement and verify.
-- [ ] 3.2 (integration, red first) With publishing enabled (fake publisher):
+- [x] 3.1 (unit, red first) Tests for the CloudEvent records (D2): JSON field names, `specversion` 1.0, `type` per change, `subject` = player uuid, and `data` without code, display name or unverified value. Implement and verify.
+- [x] 3.2 (integration, red first) With publishing enabled (fake publisher):
   - redeem, upgrade, unverified set and unlink each write exactly one row
   - a no-op delete and a 409 redeem write none
   - an exception after the code claim rolls back both the link and the outbox row
 
   Implement `OutboxWriter` within `LinkTransactions` and verify.
-- [ ] 3.3 (integration, red first) With publishing disabled (default config): creating a link writes no outbox row and no Kafka beans exist. Implement `NoopOutboxWriter` and the `@Requires` wiring, and verify.
+- [x] 3.3 (integration, red first) With publishing disabled (default config): creating a link writes no outbox row and no Kafka beans exist. Implement `NoopOutboxWriter` and the `@Requires` wiring, and verify.
 
 ## 4. Relay
 
-- [ ] 4.1 (integration, red first) Relay tests on H2 with a fake `EventPublisher` and a fixed `Clock`, calling the run method directly:
+- [x] 4.1 (integration, red first) Relay tests on H2 with a fake `EventPublisher` and a fixed `Clock`, calling the run method directly:
   - publishes in `created_at` order with key = player uuid and marks rows published
   - a failing publisher stops the run and the next run retries
   - an expired lease is reclaimed
   - retention deletes only rows published more than 7 days ago
 
   Implement D4 and verify.
-- [ ] 4.2 (integration, red first) Two relay instances with different ids against 10 pending rows on virtual threads, joined: every row is published exactly once. Verify.
-- [ ] 4.3 Implement `KafkaEventPublisher` (`@KafkaClient`, `acks=all`, idempotence) and the topic bean (`otis.account-links`, 3 partitions, RF 3). Verify by a context test with `KAFKA_ENABLED=true`: the beans exist and the producer is configured (no broker needed). Record in the PR that the real broker path is verified after deployment.
+- [x] 4.2 (integration, red first) Two relay instances with different ids against 10 pending rows on virtual threads, joined: every row is published exactly once. Verify.
+- [x] 4.3 Implement `KafkaEventPublisher` (`@KafkaClient`, `acks=all`, idempotence) and the topic bean (`otis.account-links`, 3 partitions, RF 3). Verify by a context test with `KAFKA_ENABLED=true`: the beans exist and the producer is configured (no broker needed). Record in the PR that the real broker path is verified after deployment.
 
 ## 5. Observability and build
 
-- [ ] 5.1 (unit, red first) `OpenTelemetryExtension` tests:
+- [x] 5.1 (unit, red first) `OpenTelemetryExtension` tests:
   - `otis.outbox.pending` gauge (name, unit `{event}`, value = pending rows, no attributes)
   - `outbox.relay` span attributes
   - WARN logged once over two consecutive failing runs (captured appender)
 
   Implement D5 and verify.
-- [ ] 5.2 Run `./gradlew clean build`. Verify it is green, that `ExistingEndpointsCompatibilityTest`, the settings tests and the link tests still pass, and that the client `javap` output is unchanged. Tick the boxes and push the branch.
+- [x] 5.2 Run `./gradlew clean build`. Verify it is green, that `ExistingEndpointsCompatibilityTest`, the settings tests and the link tests still pass, and that the client `javap` output is unchanged. Tick the boxes and push the branch.
 
 ## 6. Deployment config (separate repository)
 

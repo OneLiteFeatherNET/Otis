@@ -155,3 +155,15 @@ Prod Otis runs 2 replicas. CI has no Docker, so tests cannot start a Kafka broke
 1. Release an Otis version containing V4. `outbox_event` is created, and with `KAFKA_ENABLED` unset nothing else changes.
 2. Merge the separate Kubernetes-FLUX PR (`KAFKA_ENABLED=true`, bootstrap servers) after step 1 is deployed. On start, Otis creates the topic and begins relaying.
 3. Rollback: set `KAFKA_ENABLED=false` (pending rows stay in the table and are harmless), or deploy the previous image, which ignores the table. Optional cleanup: `DROP TABLE outbox_event;` and deleting the topic `otis.account-links`.
+
+## Implementation Notes
+
+Deviations found during implementation:
+- **micronaut-kafka 5.9.0 has no `kafka.enabled` switch** (checked in the jar: no such property, the module only knows `kafka.health.enabled`). The design's "Micronaut Kafka's own switch" does not exist. Instead every Kafka bean of Otis (`LinkEventProducer`, `KafkaEventPublisher`, the `NewTopic` factory) carries the meta annotation `@WhenKafkaPublishing` (`otis.events.enabled=true` and `otis.events.publisher=kafka`, default `kafka`). `KAFKA_ENABLED` feeds `otis.events.enabled` and `kafka.health.enabled`: without the latter the Kafka health indicator would probe `localhost:9092` and turn `/health` DOWN. Tests enable events with `otis.events.publisher=fake`.
+- **`NewTopic` beans are created automatically.** micronaut-kafka's `KafkaNewTopics` (a `@Context` bean that only exists when at least one `org.apache.kafka.clients.admin.NewTopic` bean exists) calls `AdminClient.createTopics` at startup. The result is not awaited, so `TopicExistsException` for an existing topic is ignored and the topic stays unchanged; no own AdminClient code is needed. Limitation: if Kafka is unreachable at startup, the creation fails silently and is not retried until the next start.
+- Only one index, `(published_at, created_at)`: its leading column serves the retention delete, so the second index of D1 would be redundant.
+- `AccountLinkService.delete` and `putUnverified` now run in a `LinkTransactions` block (delete needs the removed link for the event; both must write the outbox row in the transaction of the change).
+- The relay sets short producer timeouts (`max.block.ms` 5s, `request.timeout.ms` 10s, `delivery.timeout.ms` 15s), so an unreachable broker fails a run quickly. A timed-out send may still arrive later; that is a duplicate with the same event id.
+- The instance id comes from `otis.events.instance-id` (`HOSTNAME`), else a random uuid. Relay interval and initial delay are configurable (`otis.events.relay.interval`, `otis.events.relay.initial-delay`) so tests keep the scheduler idle.
+- `otis.outbox.pending` is an OpenTelemetry gauge as designed. The backend sets `otel.metrics.exporter: none` (metrics go through Micrometer/Prometheus), so the gauge is visible in tests but not exported in production until an OTel metrics exporter is configured. Exposing it through Micrometer as well is a follow-up.
+- Not verifiable without a broker (skipped here, to verify after deployment): real topic creation, acknowledgement, the `traceparent` header on the message.
