@@ -4,6 +4,9 @@ micronaut:
       parser-features:
   application:
     name: Otis API
+  # RFC 9457 problem details for every error response; never expose stack traces.
+  problem:
+    stack-trace: false
   metrics:
     enabled: true
     export:

@@ -13,6 +13,7 @@ dependencies {
 
     compileOnly(mn.micronaut.openapi.annotations)
 
+    implementation(mn.micronaut.problem.json)
     implementation(mn.micronaut.http.validation)
     implementation(mn.micronaut.runtime)
     implementation(mn.validation)
@@ -61,6 +62,7 @@ dependencies {
     testImplementation(mn.micronaut.test.rest.assured)
     testImplementation(mn.junit.jupiter.api)
     testImplementation(mn.junit.jupiter.params)
+    testImplementation(libs.opentelemetry.sdk.testing)
     testRuntimeOnly(mn.junit.jupiter.engine)
 }
 
