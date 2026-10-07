@@ -36,6 +36,11 @@ dependencies {
     implementation(mn.mariadb.java.client)
     implementation(mn.postgresql)
     implementation(mn.h2)
+    implementation(mn.micronaut.flyway)
+    runtimeOnly(mn.flyway.postgresql)
+    runtimeOnly(mn.flyway.mysql)
+    // Adventure Key is the setting key type; version aligned with velocity-api (see libs catalog).
+    implementation(libs.adventure.key)
     implementation(mn.snakeyaml)
    // implementation(mn.log4j)
     implementation(mn.logback.core)

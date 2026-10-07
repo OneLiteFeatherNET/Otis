@@ -13,7 +13,7 @@ Branch `feat/player-settings` from `origin/feat/problem-details` (stacked; PR ba
 ## 1. Setup
 
 - [x] 1.1 Copy `openspec/changes/add-player-settings/` from `/mnt/projects/oss/onelitefeather/Otis` into the worktree and commit as `docs(openspec): add add-player-settings change`; verify `openspec validate add-player-settings --strict` passes
-- [ ] 1.2 Add `net.kyori:adventure-key` (version = Adventure version of `velocity-api` 4.2.0, read from its POM), `micronaut-flyway`, `flyway-database-postgresql`, `flyway-mysql` to the `libs` catalog / backend dependencies; verify `./gradlew :backend:dependencies` resolves them
+- [x] 1.2 Add `net.kyori:adventure-key` (version = Adventure version of `velocity-api` 4.2.0, read from its POM), `micronaut-flyway`, `flyway-database-postgresql`, `flyway-mysql` to the `libs` catalog / backend dependencies; verify `./gradlew :backend:dependencies` resolves them
 
 ## 2. Schema migration
 
