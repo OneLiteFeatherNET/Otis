@@ -1,7 +1,7 @@
 -- Player settings (additive): one row per player and Adventure key; the value is opaque JSON.
 create table player_setting (
-    id binary(16) not null,
-    player_id binary(16) not null,
+    id uuid not null,
+    player_id uuid not null,
     key_namespace varchar(255) not null,
     key_value varchar(255) not null,
     setting_value json not null,
