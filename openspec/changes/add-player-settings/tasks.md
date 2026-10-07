@@ -19,7 +19,7 @@ Branch `feat/player-settings` from `origin/feat/problem-details` (stacked; PR ba
 
 - [x] 2.1 (integration, red first) Write a test "fresh database": empty in-memory H2 (unique DB name per test), Flyway migrates, Hibernate `validate` passes, both tables exist; write V1 (`otis_player` exactly as Hibernate generates it today) and V2 (`player_setting`, D1) for `h2`, `postgresql`, `mariadb` vendor directories; configure Flyway (`FLYWAY_ENABLED` toggle, baseline-on-migrate, baseline-version 1); verify the test passes
 - [x] 2.2 (integration, red first) Write a test "existing database": H2 pre-filled by a fixture with the current `otis_player` schema and rows, no history table; after startup all rows are byte-identical and `player_setting` exists; verify it passes
-- [ ] 2.3 Review V1/V2 SQL for PostgreSQL and MariaDB by hand against D1 (types `jsonb`/`JSON`, FK `ON DELETE CASCADE`, unique and index); verify by starting `./gradlew :backend:run` against the local MariaDB from `docker/docker-compose.yml` if Docker is available, otherwise record that the manual check was skipped in the PR body
+- [x] 2.3 Review V1/V2 SQL for PostgreSQL and MariaDB by hand against D1 (types `jsonb`/`JSON`, FK `ON DELETE CASCADE`, unique and index); verify by starting `./gradlew :backend:run` against the local MariaDB from `docker/docker-compose.yml` if Docker is available, otherwise record that the manual check was skipped in the PR body
 
 ## 3. Domain and service
 
@@ -32,7 +32,7 @@ Branch `feat/player-settings` from `origin/feat/problem-details` (stacked; PR ba
 
 - [x] 4.1 (integration, red first) REST Assured tests for every scenario of "Versioned settings API", "Listing filters by namespace", "Key namespace rules", "Settings belong to known players", "Setting values are bounded" (status, problem `type`, body); implement `PlayerSettingController` with `@Operation`/`@ApiResponse` and `format: adventure-key` schemas; verify tests pass
 - [x] 4.2 (integration) Test "Deleting a player is unaffected by settings": delete a player with settings via `POST /otis/delete/{owner}`, assert same response as before and settings gone; rerun the characterization tests from `add-problem-details`; verify all pass
-- [ ] 4.3 Run `./gradlew :backend:build`; verify green and that the generated backend OpenAPI YAML contains the `/v1/players/{playerUuid}/settings` paths; push the branch
+- [x] 4.3 Run `./gradlew :backend:build`; verify green and that the generated backend OpenAPI YAML contains the `/v1/players/{playerUuid}/settings` paths; push the branch
 
 ## 5. Client
 
