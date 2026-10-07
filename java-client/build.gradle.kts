@@ -13,6 +13,10 @@ dependencies {
     implementation(libs.jackson.datatype.jsr310)
     implementation(libs.jackson.databind.nullable)
     implementation(libs.jakarta.annotation.api)
+
+    testImplementation(mn.junit.jupiter.api)
+    testRuntimeOnly(mn.junit.jupiter.engine)
+    testRuntimeOnly(mn.junit.platform.launcher)
 }
 
 // OpenAPI Generator configuration
@@ -73,6 +77,9 @@ tasks.named("sourcesJar") {
 }
 
 tasks {
+    test {
+        useJUnitPlatform()
+    }
     javadoc {
         options {
             (this as CoreJavadocOptions).addStringOption("Xdoclint:none", "-quiet")
