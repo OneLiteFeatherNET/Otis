@@ -44,7 +44,7 @@ Every agent prompt restates these rules:
 
   Implement it (D4) and verify the tests pass.
 - [x] 3.3 (integration, red first) Rollback test for `LinkTransactions`: an exception after the code claim leaves the code unconsumed on H2. Implement D3 with the explicitly qualified transaction operations. Verify it passes, and record which bean resolved in the PR notes.
-- [ ] 3.4 (unit, red first) `AccountLinkService` tests with fake repositories and a fixed `Clock` for every rule:
+- [x] 3.4 (unit, red first) `AccountLinkService` tests with fake repositories and a fixed `Clock` for every rule:
   - issue a code; the previous code is revoked
   - rate limit at 6 codes, and again after the window
   - redeem: success, lenient input, used, expired at +10:01, provider mismatch
@@ -54,7 +54,7 @@ Every agent prompt restates these rules:
   - list, idempotent delete, and lookup ignoring unverified links
 
   Implement and verify.
-- [ ] 3.5 (unit, red first) `OpenTelemetryExtension` tests (D7):
+- [x] 3.5 (unit, red first) `OpenTelemetryExtension` tests (D7):
   - one INTERNAL span per operation, with name, provider, outcome and player uuid
   - expected outcomes are not ERROR
   - no attribute equals the code, externalId, displayName or value

@@ -35,9 +35,9 @@ public interface LinkCodeRepository extends GenericRepository<LinkCode, UUID> {
             + "AND code.usedAt IS NULL AND code.revokedAt IS NULL AND code.expiresAt > :now")
     int revokeOpen(UUID playerId, String provider, Instant now);
 
-    /** @return how many codes the player was issued at or after {@code since} (any provider, any state) */
-    @Query("SELECT COUNT(code) FROM LinkCode code WHERE code.playerId = :playerId AND code.createdAt >= :since")
-    long countIssuedSince(UUID playerId, Instant since);
+    /** @return how many codes the player was issued after {@code after} (any provider, any state) */
+    @Query("SELECT COUNT(code) FROM LinkCode code WHERE code.playerId = :playerId AND code.createdAt > :after")
+    long countIssuedAfter(UUID playerId, Instant after);
 
     /** Deletes the player's codes created before {@code before}; returns how many were deleted. */
     @Query("DELETE FROM LinkCode code WHERE code.playerId = :playerId AND code.createdAt < :before")
