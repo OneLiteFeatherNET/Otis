@@ -63,14 +63,14 @@ Every agent prompt restates these rules:
 
 ## 4. API
 
-- [ ] 4.1 (integration, red first) REST Assured tests for every scenario in `specs/account-links/spec.md` (status, problem `type`, body). Implement `AccountLinkController` with `@Operation` and `@ApiResponse` including problem responses. Verify the tests pass.
-- [ ] 4.2 (integration, red first)
+- [x] 4.1 (integration, red first) REST Assured tests for every scenario in `specs/account-links/spec.md` (status, problem `type`, body). Implement `AccountLinkController` with `@Operation` and `@ApiResponse` including problem responses. Verify the tests pass.
+- [x] 4.2 (integration, red first)
   - Concurrency test (D5): two virtual-thread redeems for the same externalId from different players, joined without sleeps. Assert one 201 and one 409, and that the losing code is still redeemable.
   - Cascade test: player delete via `POST /otis/delete/{owner}` removes the links.
   - Rerun `ExistingEndpointsCompatibilityTest` and the settings tests.
 
   Verify all pass.
-- [ ] 4.3 Run `./gradlew :backend:build`. Verify it is green and that the generated backend OpenAPI YAML contains the link paths. Push the branch.
+- [x] 4.3 Run `./gradlew :backend:build`. Verify it is green and that the generated backend OpenAPI YAML contains the link paths. Push the branch.
 
 ## 5. Client
 
