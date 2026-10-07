@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import net.onelitefeather.otis.database.entity.OtisPlayer;
 import net.onelitefeather.otis.database.repository.OtisPlayerRepository;
 import net.onelitefeather.otis.dto.OtisPlayerDTO;
+import net.onelitefeather.otis.problem.ProblemDetailSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,8 +54,16 @@ public class OtisRequestsController {
             responseCode = "500",
             description = "The player could not be added to the database",
             content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = String.class)
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request is invalid, e.g. a path value or body member violates a constraint",
+            content = @Content(
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
             )
     )
     @Validated
@@ -85,8 +94,24 @@ public class OtisRequestsController {
             responseCode = "404",
             description = "Player not found",
             content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = String.class)
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request is invalid, e.g. a path value or body member violates a constraint",
+            content = @Content(
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "Unexpected server error",
+            content = @Content(
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
             )
     )
     @Validated
@@ -117,8 +142,24 @@ public class OtisRequestsController {
             responseCode = "404",
             description = "Player not found",
             content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = String.class)
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request is invalid, e.g. a path value or body member violates a constraint",
+            content = @Content(
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "Unexpected server error",
+            content = @Content(
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
             )
     )
     @Validated
@@ -149,16 +190,24 @@ public class OtisRequestsController {
             responseCode = "404",
             description = "Player not found",
             content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = String.class)
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
             )
     )
     @ApiResponse(
             responseCode = "400",
             description = "Bad request, player UUID does not match the owner",
             content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = String.class)
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "Unexpected server error",
+            content = @Content(
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
             )
     )
     @Validated
@@ -200,8 +249,24 @@ public class OtisRequestsController {
             responseCode = "404",
             description = "Player not found",
             content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = String.class)
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request is invalid, e.g. a path value or body member violates a constraint",
+            content = @Content(
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "Unexpected server error",
+            content = @Content(
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
             )
     )
     @Validated
@@ -241,8 +306,24 @@ public class OtisRequestsController {
             responseCode = "404",
             description = "No players found",
             content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = String.class)
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request is invalid, e.g. a path value or body member violates a constraint",
+            content = @Content(
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "Unexpected server error",
+            content = @Content(
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
             )
     )
     @Get(uris = {"/all"})

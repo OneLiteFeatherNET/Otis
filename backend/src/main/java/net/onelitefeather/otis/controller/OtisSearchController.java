@@ -14,6 +14,7 @@ import jakarta.validation.constraints.Size;
 import net.onelitefeather.otis.database.entity.OtisPlayer;
 import net.onelitefeather.otis.database.repository.OtisPlayerRepository;
 import net.onelitefeather.otis.dto.OtisPlayerDTO;
+import net.onelitefeather.otis.problem.ProblemDetailSchema;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -51,8 +52,24 @@ public class OtisSearchController {
             responseCode = "404",
             description = "Player not found.",
             content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = String.class)
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request is invalid, e.g. a path value or body member violates a constraint",
+            content = @Content(
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "Unexpected server error",
+            content = @Content(
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
             )
     )
     @Valid
@@ -85,8 +102,24 @@ public class OtisSearchController {
             responseCode = "404",
             description = "Player not found.",
             content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = String.class)
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request is invalid, e.g. a path value or body member violates a constraint",
+            content = @Content(
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "Unexpected server error",
+            content = @Content(
+                    mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemDetailSchema.class)
             )
     )
     @Valid
