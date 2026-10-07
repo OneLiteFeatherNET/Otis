@@ -2,17 +2,29 @@ package net.onelitefeather.otis.velocity;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.command.BrigadierCommand;
+import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
+import net.onelitefeather.otis.client.OtisClients;
+import net.onelitefeather.otis.client.api.AccountLinksApi;
 import net.onelitefeather.otis.client.invoker.ApiClient;
 import net.onelitefeather.otis.client.invoker.Configuration;
 import net.onelitefeather.otis.velocity.config.OtisConfig;
+import net.onelitefeather.otis.velocity.link.LinkCommandHandler;
+import net.onelitefeather.otis.velocity.link.LinkCommands;
+import net.onelitefeather.otis.velocity.link.OtisLinkGateway;
+import net.onelitefeather.otis.velocity.link.OtisTranslations;
 import net.onelitefeather.otis.velocity.listener.PlayerListener;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
+import java.time.Clock;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Plugin(id = "otis", name = "Otis", version = "0.0.1",
         url = "https://onelitefeather.net", description = "We did it!", authors = {"OneLiteFeatherNET"})
@@ -23,6 +35,8 @@ public class OtisPlugin {
     
     private OtisConfig config;
     private ApiClient client;
+    private OtisTranslations translations;
+    private ExecutorService linkExecutor;
 
     @Inject
     public OtisPlugin(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
@@ -45,7 +59,47 @@ public class OtisPlugin {
         this.server.getEventManager().register(this, new PlayerListener(this.logger, this.client));
         this.logger.info("Registered event listeners");
         
+        try {
+            registerLinkCommands();
+        } catch (RuntimeException e) {
+            // The join/quit sync above keeps working without the commands.
+            this.logger.error("Could not register the link commands", e);
+        }
+
         this.logger.info("Otis plugin initialized successfully");
+    }
+
+    /**
+     * Stops the link command executor and removes the plugin's translations.
+     *
+     * @param event the shutdown event
+     */
+    @Subscribe
+    public void onProxyShutdown(ProxyShutdownEvent event) {
+        if (this.linkExecutor != null) {
+            this.linkExecutor.shutdownNow();
+            this.linkExecutor.close();
+        }
+        if (this.translations != null) {
+            this.translations.close();
+        }
+    }
+
+    private void registerLinkCommands() {
+        this.translations = new OtisTranslations();
+        this.translations.install();
+        this.linkExecutor = Executors.newVirtualThreadPerTaskExecutor();
+
+        ApiClient linkClient = OtisClients.newApiClient();
+        linkClient.updateBaseUri(this.config.getBaseUrl());
+        LinkCommandHandler handler = new LinkCommandHandler(
+                new OtisLinkGateway(new AccountLinksApi(linkClient)), this.linkExecutor, this.logger, Clock.systemUTC());
+
+        CommandManager commands = this.server.getCommandManager();
+        for (BrigadierCommand command : LinkCommands.create(handler)) {
+            commands.register(commands.metaBuilder(command).plugin(this).build(), command);
+        }
+        this.logger.info("Registered link commands");
     }
     
     /**

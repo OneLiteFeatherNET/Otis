@@ -50,7 +50,7 @@ Every agent prompt restates these rules:
   - connection error and 5xx mapped to `Unavailable`
 
   Implement it with `OtisClients.newApiClient()` and the configured base URI, and verify.
-- [ ] 3.3 (unit, red first) Brigadier tree tests:
+- [x] 3.3 (unit, red first) Brigadier tree tests:
   - `/link discord` dispatches to the handler with `discord`
   - the permission predicates deny sources without `otis.command.link|unlink|links|social`
   - console execution yields the players-only message
@@ -59,8 +59,8 @@ Every agent prompt restates these rules:
 
 ## 4. Build verification
 
-- [ ] 4.1 Verify that `PlayerListener` is unchanged (`git diff` shows no change to it) and that the plugin still registers it.
-- [ ] 4.2 Run `./gradlew clean build :velocity-plugin:shadowJar`. Verify that it is green and that the shadow JAR has no `net/kyori/` entries. Tick the boxes and push the branch.
+- [x] 4.1 Verify that `PlayerListener` is unchanged (`git diff` shows no change to it) and that the plugin still registers it.
+- [x] 4.2 Run `./gradlew clean build :velocity-plugin:shadowJar`. Verify that it is green and that the shadow JAR has no `net/kyori/` entries. Tick the boxes and push the branch.
 
 ## 5. Pull Request
 
