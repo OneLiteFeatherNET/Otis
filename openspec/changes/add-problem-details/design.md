@@ -69,3 +69,8 @@ The spec `java-client/specs/otis-api-1.1.0.yml` (copy of `1.0.1` plus additions;
 ## Migration Plan
 
 - No data migration. Deploy as a normal release; rollback = previous image (error format reverts, no persistent state involved).
+
+## Implementation Notes
+
+- Micronaut's `micronaut-tracing-opentelemetry-http` marks every server span with status >= 400 as ERROR and may record a controller exception more than once; it has no switch for this. Replacing the built-in tracing filter would be own infrastructure for a cosmetic gain, so the spec was narrowed: span status belongs to the framework instrumentation, and Otis's problem rendering does not touch the span. Follow-up: report the semantic-convention deviation (4xx on SERVER spans must not be errors) upstream.
+- `micronaut-problem-json` 3.9.0 builds on `org.zalando:problem`; its error processor is deprecated, so `OtisProblemBodyProvider` replaces the body provider and `ProblemResponse` flattens extension members to the top level as RFC 9457 requires.

@@ -47,7 +47,7 @@ The system SHALL report request validation failures with status 400, `type` `htt
 - **AND** `violations` contains one entry per violated constraint naming the field
 
 ### Requirement: Problems carry the trace id
-The system SHALL add an extension member `traceId` holding the W3C trace id of the active trace to every problem response while a trace is being recorded, and SHALL omit the member when no valid trace is active. Server errors (5xx) SHALL be recorded once on the active span with error status; client errors (4xx) SHALL NOT mark the span as error.
+The system SHALL add an extension member `traceId` holding the W3C trace id of the active trace to every problem response while a trace is being recorded, and SHALL omit the member when no valid trace is active. The status of the HTTP server span is owned by the framework's HTTP tracing instrumentation; building a problem response SHALL NOT change the span status or record exceptions on the span itself, and a server error (5xx) SHALL leave the server span with status ERROR.
 
 #### Scenario: Tracing enabled
 - **WHEN** tracing is enabled and a request fails
@@ -59,11 +59,11 @@ The system SHALL add an extension member `traceId` holding the W3C trace id of t
 
 #### Scenario: Server error marks span
 - **WHEN** a request fails with status 500 while tracing is enabled
-- **THEN** the server span has status ERROR and records the exception exactly once
+- **THEN** the server span has status ERROR and carries at least one recorded exception event
 
-#### Scenario: Client error does not mark span
-- **WHEN** a request fails with status 404 while tracing is enabled
-- **THEN** the server span status is not ERROR
+#### Scenario: Problem rendering leaves the span untouched
+- **WHEN** a problem response is built while a span is active
+- **THEN** the span status and its events are the same as before the problem was built
 
 ### Requirement: Existing endpoints stay compatible
 The system SHALL keep paths, HTTP methods, success status codes, success response bodies and error status codes of all existing endpoints under `/otis` and `/search` unchanged; only the body and `Content-Type` of error responses change to Problem Details. Clients built against the previous API (including released `velocity-plugin` builds) SHALL keep working without modification.
