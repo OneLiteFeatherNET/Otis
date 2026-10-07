@@ -30,14 +30,14 @@ Every agent prompt restates these rules:
 
 ## 3. Domain and service
 
-- [ ] 3.1 (unit, red first) Tests for `LinkCodes`:
+- [x] 3.1 (unit, red first) Tests for `LinkCodes`:
   - the format matches `^[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}$`
   - normalization accepts lowercase input and a missing dash
   - the hash is stable and 64 hex characters
   - generation with a seeded `Random` is deterministic
 
   Implement it (D2) and verify the tests pass.
-- [ ] 3.2 (unit, red first) Tests for `Provider`:
+- [x] 3.2 (unit, red first) Tests for `Provider`:
   - lowercase wire names
   - unsupported provider -> problem
   - valid and invalid handles and URLs per provider, including a foreign host, `http`, and more than 200 characters
