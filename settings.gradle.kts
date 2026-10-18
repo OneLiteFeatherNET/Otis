@@ -18,7 +18,7 @@ dependencyResolutionManagement {
             // Adventure version bundled by velocity-api 4.2.0 (adventure-bom 5.2.0); keep in sync on velocity bumps.
             version("adventure", "5.2.0")
 
-            version("jackson", "2.22.3")
+            version("jackson", "2.22.4")
             version("jakarta-annotation", "3.0.0")
 
             version("logstash-logback-encoder", "9.0")
