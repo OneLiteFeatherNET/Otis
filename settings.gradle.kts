@@ -14,7 +14,7 @@ dependencyResolutionManagement {
             version("micronaut", "5.0.2")
             version("annotations", "26.1.0")
             version("shadow", "9.6.1")
-            version("velocity", "4.2.0")
+            version("velocity", "4.3.0")
             // Adventure version bundled by velocity-api 4.2.0 (adventure-bom 5.2.0); keep in sync on velocity bumps.
             version("adventure", "5.2.0")
 
