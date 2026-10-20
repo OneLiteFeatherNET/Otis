@@ -5,6 +5,7 @@ import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.sdk.testing.junit5.OpenTelemetryExtension;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import net.onelitefeather.otis.dto.RedeemRequestDTO;
+import net.onelitefeather.otis.events.NoopOutboxWriter;
 import net.onelitefeather.otis.links.LinkCodes;
 import net.onelitefeather.otis.problem.OtisProblemException;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +44,7 @@ class AccountLinkTracingTest {
     void setUp() {
         repositories.addPlayer(player);
         service = new AccountLinkService(repositories.links, repositories.codes, LinkTransactions.direct(), clock,
-                new LinkCodes(new Random(1)), otel.getOpenTelemetry());
+                new LinkCodes(new Random(1)), otel.getOpenTelemetry(), new NoopOutboxWriter());
     }
 
     private SpanData onlySpan() {

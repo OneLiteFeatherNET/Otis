@@ -6,6 +6,7 @@ import net.onelitefeather.otis.dto.AccountLinkDTO;
 import net.onelitefeather.otis.dto.LinkCodeDTO;
 import net.onelitefeather.otis.dto.LinkLookupDTO;
 import net.onelitefeather.otis.dto.RedeemRequestDTO;
+import net.onelitefeather.otis.events.NoopOutboxWriter;
 import net.onelitefeather.otis.links.LinkCodes;
 import net.onelitefeather.otis.problem.ExternalAccountAlreadyLinkedProblem;
 import net.onelitefeather.otis.problem.InvalidLinkValueProblem;
@@ -50,7 +51,7 @@ class AccountLinkServiceTest {
 
     private AccountLinkService newService() {
         return new AccountLinkService(repositories.links, repositories.codes, LinkTransactions.direct(), clock,
-                new LinkCodes(new Random(1)), OpenTelemetry.noop());
+                new LinkCodes(new Random(1)), OpenTelemetry.noop(), new NoopOutboxWriter());
     }
 
     private String issue(String provider) {

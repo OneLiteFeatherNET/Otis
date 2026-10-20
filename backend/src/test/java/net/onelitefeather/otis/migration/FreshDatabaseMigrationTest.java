@@ -18,6 +18,7 @@ class FreshDatabaseMigrationTest {
             assertTrue(MigrationTestSupport.tableExists(url, "player_setting"), "player_setting must exist after migration");
             assertTrue(MigrationTestSupport.tableExists(url, "account_link"), "account_link must exist after migration");
             assertTrue(MigrationTestSupport.tableExists(url, "link_code"), "link_code must exist after migration");
+            assertTrue(MigrationTestSupport.tableExists(url, "outbox_event"), "outbox_event must exist after migration");
         }
     }
 }

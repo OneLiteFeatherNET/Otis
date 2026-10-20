@@ -11,6 +11,7 @@ import net.onelitefeather.otis.dto.AccountLinkDTO;
 import net.onelitefeather.otis.dto.LinkCodeDTO;
 import net.onelitefeather.otis.dto.LinkLookupDTO;
 import net.onelitefeather.otis.dto.RedeemRequestDTO;
+import net.onelitefeather.otis.events.OutboxWriter;
 import net.onelitefeather.otis.links.LinkCodes;
 import net.onelitefeather.otis.links.Provider;
 import net.onelitefeather.otis.problem.ExternalAccountAlreadyLinkedProblem;
@@ -55,16 +56,18 @@ public class AccountLinkService {
     private final Clock clock;
     private final LinkCodes generator;
     private final LinkSpans spans;
+    private final OutboxWriter outbox;
 
     @Inject
     public AccountLinkService(AccountLinkRepository links, LinkCodeRepository codes, LinkTransactions transactions,
-                              Clock clock, LinkCodes generator, OpenTelemetry openTelemetry) {
+                              Clock clock, LinkCodes generator, OpenTelemetry openTelemetry, OutboxWriter outbox) {
         this.links = links;
         this.codes = codes;
         this.transactions = transactions;
         this.clock = clock;
         this.generator = generator;
         this.spans = new LinkSpans(openTelemetry);
+        this.outbox = outbox;
     }
 
     /**
@@ -152,7 +155,7 @@ public class AccountLinkService {
             UUID playerId = resolvePlayer(playerUuid);
             AccountLink stored;
             try {
-                stored = storeUnverified(playerId, provider, valid);
+                stored = transactions.execute(() -> storeUnverified(playerId, provider, valid, playerUuid));
             } catch (RuntimeException failure) {
                 if (!isUniqueViolation(failure)) {
                     throw failure;
@@ -160,7 +163,7 @@ public class AccountLinkService {
                 // a concurrent first write won the race; the row exists now, so this attempt replaces or conflicts
                 LOGGER.atDebug().addKeyValue("operation", "put").addKeyValue("provider", provider.wireName())
                         .log("concurrent first write detected, retrying once");
-                stored = storeUnverified(playerId, provider, valid);
+                stored = transactions.execute(() -> storeUnverified(playerId, provider, valid, playerUuid));
             }
             finish(observation, "put", LinkSpans.SET);
             return AccountLinkDTO.of(stored);
@@ -176,7 +179,7 @@ public class AccountLinkService {
         spans.inSpan("links.delete", playerUuid, observation -> {
             Provider provider = parseProvider(observation, providerName);
             UUID playerId = resolvePlayer(playerUuid);
-            boolean deleted = links.deleteByPlayerIdAndProvider(playerId, provider.wireName()) > 0;
+            boolean deleted = transactions.execute(() -> deleteInTransaction(playerUuid, playerId, provider));
             finish(observation, "delete", deleted ? LinkSpans.DELETED : LinkSpans.NOT_FOUND);
             return null;
         });
@@ -234,21 +237,38 @@ public class AccountLinkService {
             link = links.save(new AccountLink(playerId, provider.wireName(), request.externalId(), null,
                     request.displayName(), true, now));
         }
+        outbox.linked(playerUuid, provider.wireName(), request.externalId(), true, now);
         return new Redeemed(new LinkLookupDTO(playerUuid, AccountLinkDTO.of(link)), upgraded);
     }
 
-    private AccountLink storeUnverified(UUID playerId, Provider provider, String value) {
+    /** Removes the link and records the event in one transaction; a missing link changes nothing. */
+    private boolean deleteInTransaction(UUID playerUuid, UUID playerId, Provider provider) {
         Optional<AccountLink> existing = links.findByPlayerIdAndProvider(playerId, provider.wireName());
+        if (existing.isEmpty() || links.deleteByPlayerIdAndProvider(playerId, provider.wireName()) == 0) {
+            return false;
+        }
+        AccountLink removed = existing.get();
+        outbox.unlinked(playerUuid, provider.wireName(), removed.getExternalId(), removed.isVerified(), now());
+        return true;
+    }
+
+    private AccountLink storeUnverified(UUID playerId, Provider provider, String value, UUID playerUuid) {
+        Optional<AccountLink> existing = links.findByPlayerIdAndProvider(playerId, provider.wireName());
+        Instant now = now();
+        AccountLink stored;
         if (existing.isEmpty()) {
-            return links.save(new AccountLink(playerId, provider.wireName(), null, value, null, false, now()));
+            stored = links.save(new AccountLink(playerId, provider.wireName(), null, value, null, false, now));
+        } else {
+            AccountLink link = existing.get();
+            if (link.isVerified()) {
+                throw new ProviderAlreadyLinkedProblem();
+            }
+            link.setLinkValue(value);
+            link.setLinkedAt(now);
+            stored = links.update(link);
         }
-        AccountLink link = existing.get();
-        if (link.isVerified()) {
-            throw new ProviderAlreadyLinkedProblem();
-        }
-        link.setLinkValue(value);
-        link.setLinkedAt(now());
-        return links.update(link);
+        outbox.linked(playerUuid, provider.wireName(), null, false, now);
+        return stored;
     }
 
     /** After a lost race: the external account is taken if a verified link for it exists, else the provider is. */
