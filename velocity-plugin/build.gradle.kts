@@ -7,6 +7,13 @@ dependencies {
     implementation(project(":java-client"))
     compileOnly(libs.velocity.api)
     annotationProcessor(libs.velocity.api)
+
+    testImplementation(libs.velocity.api)
+    testImplementation(mn.junit.jupiter.api)
+    testImplementation(mn.junit.jupiter.params)
+    testImplementation(mn.logback.classic)
+    testRuntimeOnly(mn.junit.jupiter.engine)
+    testRuntimeOnly(mn.junit.platform.launcher)
 }
 
 java {
