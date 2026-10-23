@@ -14,6 +14,8 @@ tags:
   description: Player management
 - name: Player settings
   description: Per-player settings identified by Adventure keys
+- name: Account links
+  description: Links between players and external accounts, verified by one-time codes
 paths:
   /otis:
     post:
@@ -543,6 +545,288 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ProblemDetail'
+  /v1/link-codes/redeem:
+    post:
+      tags:
+      - Account links
+      summary: Redeem a link code
+      description: Consumes a one-time code and links the player of the code to the external account. Unknown, expired, used and foreign-provider codes are answered identically.
+      operationId: redeemLinkCode
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RedeemRequestDTO'
+        required: true
+      responses:
+        '201':
+          description: The verified link and its player
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkLookupDTO'
+        '400':
+          description: Invalid request (problem types unsupported-provider, constraint violations)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Conflict; the code stays redeemable (problem types external-account-already-linked, provider-already-linked)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '410':
+          description: The code is invalid or expired (problem type link-code-invalid)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /v1/links/{provider}/{externalId}:
+    get:
+      tags:
+      - Account links
+      summary: Find the player of an external account
+      description: Returns the player and link of a verified external account. Unverified links are never found.
+      operationId: lookupLink
+      parameters:
+      - name: provider
+        in: path
+        description: 'Provider: discord, twitch, youtube, x, tiktok or github.'
+        required: true
+        schema:
+          type: string
+      - name: externalId
+        in: path
+        description: Id of the external account at the provider.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The player and the verified link
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkLookupDTO'
+        '400':
+          description: Invalid request (problem type unsupported-provider)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: No verified link (problem type link-not-found)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /v1/players/{playerUuid}/link-codes:
+    post:
+      tags:
+      - Account links
+      summary: Issue a link code for a player
+      description: Issues a one-time code (valid 10 minutes) the player enters at the external service. A previous open code of the same provider is revoked. At most 5 codes per player and hour.
+      operationId: createLinkCode
+      parameters:
+      - name: playerUuid
+        in: path
+        description: Mojang uuid of the player; the player must be stored in Otis.
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkCodeRequestDTO'
+        required: true
+      responses:
+        '201':
+          description: The code; it is shown only once
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkCodeDTO'
+        '400':
+          description: Invalid request (problem types unsupported-provider, constraint violations)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Player not found (problem type player-not-found)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many codes (problem type link-code-rate-limited)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /v1/players/{playerUuid}/links:
+    get:
+      tags:
+      - Account links
+      summary: List the links of a player
+      description: Returns the verified and unverified links of the player.
+      operationId: listPlayerLinks
+      parameters:
+      - name: playerUuid
+        in: path
+        description: Mojang uuid of the player; the player must be stored in Otis.
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: The links, possibly an empty list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountLinkDTO'
+        '404':
+          description: Player not found (problem type player-not-found)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '400':
+          description: The request is invalid, e.g. the player uuid is malformed
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /v1/players/{playerUuid}/links/{provider}:
+    put:
+      tags:
+      - Account links
+      summary: Set an unverified link of a player
+      description: Stores a public, unverified link (handle or https URL on the provider's domain) and replaces a previous unverified link of the provider. A verified link is never overwritten.
+      operationId: putPlayerLink
+      parameters:
+      - name: playerUuid
+        in: path
+        description: Mojang uuid of the player; the player must be stored in Otis.
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: provider
+        in: path
+        description: 'Provider: discord, twitch, youtube, x, tiktok or github.'
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileLinkRequestDTO'
+        required: true
+      responses:
+        '200':
+          description: The stored link
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountLinkDTO'
+        '400':
+          description: Invalid request (problem types unsupported-provider, invalid-link-value)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Player not found (problem type player-not-found)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: The player has a verified link for the provider (problem type provider-already-linked)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    delete:
+      tags:
+      - Account links
+      summary: Remove a link of a player
+      description: Removes the verified or unverified link of the provider. Removing a link that does not exist succeeds as well.
+      operationId: deletePlayerLink
+      parameters:
+      - name: playerUuid
+        in: path
+        description: Mojang uuid of the player; the player must be stored in Otis.
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: provider
+        in: path
+        description: 'Provider: discord, twitch, youtube, x, tiktok or github.'
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The player has no link for the provider (any more)
+        '400':
+          description: Invalid request (problem type unsupported-provider)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Player not found (problem type player-not-found)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
 components:
   schemas:
     OtisPlayerDTO:
@@ -717,3 +1001,118 @@ components:
           format: date-time
           example: 2026-01-01 12:00:00+00:00
       description: A stored setting as exposed by the API.
+    LinkCodeDTO:
+      type: object
+      properties:
+        code:
+          pattern: ^[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}$
+          type: string
+          description: 'The one-time link code: two groups of four Crockford Base32 characters. Shown only once.'
+          example: K7Q4-MZ2A
+        provider:
+          type: string
+          description: Provider the code was issued for.
+          example: discord
+        expiresAt:
+          type: string
+          description: Instant after which the code can no longer be redeemed (10 minutes after issue).
+          format: date-time
+          example: 2026-01-01 12:10:00+00:00
+    LinkCodeRequestDTO:
+      required:
+      - provider
+      type: object
+      properties:
+        provider:
+          maxLength: 32
+          minLength: 1
+          type: string
+          description: 'Provider to link: discord, twitch, youtube, x, tiktok or github.'
+          example: discord
+      description: Requests a link code.
+    RedeemRequestDTO:
+      required:
+      - code
+      - externalId
+      - provider
+      type: object
+      properties:
+        code:
+          maxLength: 32
+          minLength: 1
+          type: string
+          description: The link code as received by the player; case-insensitive, the dash is optional.
+          example: K7Q4-MZ2A
+        provider:
+          maxLength: 32
+          minLength: 1
+          type: string
+          description: 'Provider the code was issued for: discord, twitch, youtube, x, tiktok or github.'
+          example: discord
+        externalId:
+          maxLength: 64
+          minLength: 1
+          type: string
+          description: Stable id of the external account, as authenticated by the redeeming service.
+          example: '123456789012345678'
+        displayName:
+          maxLength: 100
+          type: string
+          description: Optional human-readable name of the external account.
+          nullable: true
+          example: meinerlp
+    AccountLinkDTO:
+      type: object
+      properties:
+        provider:
+          type: string
+          description: Provider of the link.
+          example: discord
+        externalId:
+          type: string
+          description: Id of the external account; only set for verified links.
+          nullable: true
+          example: '123456789012345678'
+        value:
+          type: string
+          description: Public handle or https URL of an unverified link; only set for unverified links.
+          nullable: true
+          example: https://www.youtube.com/@onelitefeather
+        displayName:
+          type: string
+          description: Human-readable account name of a verified link.
+          nullable: true
+          example: meinerlp
+        verified:
+          type: boolean
+          description: True if the link was proven with a link code, false for a public claim.
+          example: true
+        linkedAt:
+          type: string
+          description: Instant the link was created or last replaced.
+          format: date-time
+          example: 2026-01-01 12:00:00+00:00
+      description: The link.
+    LinkLookupDTO:
+      type: object
+      properties:
+        playerUuid:
+          type: string
+          description: Mojang uuid of the player the link belongs to.
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174001
+        link:
+          description: The link.
+          allOf:
+          - $ref: '#/components/schemas/AccountLinkDTO'
+    ProfileLinkRequestDTO:
+      required:
+      - value
+      type: object
+      properties:
+        value:
+          maxLength: 200
+          minLength: 1
+          type: string
+          description: A handle of the provider or an https URL on the provider's own domain; at most 200 characters.
+          example: https://www.youtube.com/@onelitefeather
