@@ -44,7 +44,7 @@ dependencyResolutionManagement {
             library("jackson-databind",    "com.fasterxml.jackson.core", "jackson-databind").withoutVersion()
             library("jackson-datatype-jsr310", "com.fasterxml.jackson.datatype", "jackson-datatype-jsr310").withoutVersion()
 
-            library("jackson-databind-nullable", "org.openapitools", "jackson-databind-nullable").version("0.2.12")
+            library("jackson-databind-nullable", "org.openapitools", "jackson-databind-nullable").version("0.2.13")
             library("jakarta-annotation-api", "jakarta.annotation", "jakarta.annotation-api").versionRef("jakarta-annotation")
 
             // Observability — JSON logging + OpenTelemetry (see backend/build.gradle.kts).
