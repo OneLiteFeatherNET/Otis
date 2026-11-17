@@ -87,6 +87,11 @@ java {
 
 graalvmNative.toolchainDetection = false
 
+// The base image is pinned here; the plugin default is a moving `eclipse-temurin:25-jre` tag.
+tasks.named<io.micronaut.gradle.docker.MicronautDockerfile>("optimizedDockerfile") {
+    getBaseImage().set("eclipse-temurin:25.0.5.1_1-jre")
+}
+
 micronaut {
     runtime("netty")
     testRuntime("junit5")
